@@ -1753,76 +1753,113 @@ async function fetchFMPData() {
   btn.textContent = 'Fetching...';
   setFetchStatus('loading', 'Connecting to Financial Modeling Prep API...');
 
-  const BASE = 'https://financialmodelingprep.com/api/v3';
+  const BASE = 'https://financialmodelingprep.com/stable';
 
   try {
-    // 1 — Company profile (name, exchange, sector, price, shares, description)
-    setFetchStatus('loading', '[1] Fetching company profile...');
-    const profileRes = await fetch(BASE + '/profile/' + ticker + '?apikey=' + apiKey);
+    // 1 - Company profile (name, price, beta, shares, exchange)
+    setFetchStatus('loading', '[1/4] Fetching company profile...');
+    const profileRes = await fetch(BASE + '/profile?symbol=' + ticker + '&apikey=' + apiKey);
     const profileData = await profileRes.json();
-
-    if (!profileData || profileData.length === 0 || profileData['Error Message']) {
-      throw new Error(profileData?.['Error Message'] || 'Ticker not found. Check the symbol and your API key.');
+    if (!profileData || (Array.isArray(profileData) && profileData.length === 0) || profileData['Error Message'] || profileData.error) {
+      throw new Error(profileData?.['Error Message'] || profileData?.error || 'Ticker not found. Check the symbol and your API key.');
     }
     const profile = profileData[0];
 
-    // 2 — Cash flow statement (last 6 annual)
-    setFetchStatus('loading', '[2] Fetching 6 years of cash flow data...');
-    const cfRes  = await fetch(BASE + '/cash-flow-statement/' + ticker + '?period=annual&limit=6&apikey=' + apiKey);
+    // 2 - Cash flow statement (last 6 annual) - FCF history
+    setFetchStatus('loading', '[2/4] Fetching 6 years of cash flow data...');
+    const cfRes = await fetch(BASE + '/cash-flow-statement?symbol=' + ticker + '&period=annual&limit=6&apikey=' + apiKey);
     const cfData = await cfRes.json();
-
     if (!cfData || cfData.length === 0) {
-      throw new Error('No cash flow data found for ' + ticker + '. The company may not have enough history or may not be on FMP free tier.');
+      throw new Error('No cash flow data found for ' + ticker + '. The company may not have enough history or may require a paid plan.');
     }
 
-    // 3 — Balance sheet for net debt (latest)
-    setFetchStatus('loading', '[3] Fetching balance sheet for net debt...');
-    const bsRes  = await fetch(BASE + '/balance-sheet-statement/' + ticker + '?period=annual&limit=1&apikey=' + apiKey);
+    // 3 - Balance sheet for net debt
+    setFetchStatus('loading', '[3/4] Fetching balance sheet...');
+    const bsRes = await fetch(BASE + '/balance-sheet-statement?symbol=' + ticker + '&period=annual&limit=1&apikey=' + apiKey);
     const bsData = await bsRes.json();
-    const bs = bsData?.[0] || {};
-    const totalDebt = (bs.shortTermDebt || 0) + (bs.longTermDebt || 0);
-    const cash      = bs.cashAndCashEquivalents || bs.cashAndShortTermInvestments || 0;
-    const netDebt   = totalDebt - cash;
-    const sharesForNetDebt = profile.sharesOutstanding || 1;
-    const netCashPS = -1 * (netDebt / sharesForNetDebt); // negative = net debt, positive = net cash
+    const bs        = bsData?.[0] || {};
+    const totalDebt  = (bs.shortTermDebt || 0) + (bs.longTermDebt || 0);
+    const cashOnHand = bs.cashAndCashEquivalents || bs.cashAndShortTermInvestments || 0;
+    const netCashPS  = -1 * ((totalDebt - cashOnHand) / (profile.sharesOutstanding || 1));
 
-    // Build hist array — oldest first
+    // 4 - Income statement (5 years) - derive revenue CAGR for growth estimates
+    setFetchStatus('loading', '[4/4] Fetching income statement for growth rates...');
+    const isRes = await fetch(BASE + '/income-statement?symbol=' + ticker + '&period=annual&limit=5&apikey=' + apiKey);
+    const isData = await isRes.json();
+
+    // Compute revenue CAGR from income statement
+    let revenueCAGR = 8; // safe default
+    let fcfCAGR     = 8;
+    if (isData && isData.length >= 2) {
+      const newestRev = isData[0].revenue || 0;
+      const oldestRev = isData[isData.length - 1].revenue || 0;
+      const yrs = isData.length - 1;
+      if (newestRev > 0 && oldestRev > 0 && yrs > 0) {
+        revenueCAGR = Math.round((Math.pow(newestRev / oldestRev, 1 / yrs) - 1) * 1000) / 10;
+      }
+    }
+
+    // Compute FCF CAGR directly from cash flow data
+    const cfSorted = [...cfData].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    if (cfSorted.length >= 2) {
+      const newestFCF = cfSorted[cfSorted.length - 1].freeCashFlow || 0;
+      const oldestFCF = cfSorted[0].freeCashFlow || 0;
+      const yrs = cfSorted.length - 1;
+      if (newestFCF > 0 && oldestFCF > 0 && yrs > 0) {
+        fcfCAGR = Math.round((Math.pow(newestFCF / oldestFCF, 1 / yrs) - 1) * 1000) / 10;
+      }
+    }
+
+    // Phase 1 = blended FCF CAGR + revenue CAGR, clamped 2-40%
+    const phase1G = Math.min(40, Math.max(2, Math.round(((fcfCAGR + revenueCAGR) / 2) * 10) / 10));
+    // Phase 2 = 55% of phase 1 (maturity slowdown), clamped 2-20%
+    const phase2G = Math.min(20, Math.max(2, Math.round(phase1G * 0.55 * 10) / 10));
+
+    // WACC from beta using CAPM: Rf(4.5%) + beta * ERP(5.5%)
+    const beta     = profile.beta || 1;
+    const waccCalc = Math.min(18, Math.max(6, Math.round((4.5 + beta * 5.5) * 10) / 10));
+
+    // Build hist array - oldest first
     const histRaw = [...cfData].reverse();
     const hist = histRaw.map((row, i) => {
-      const fcfM  = Math.round((row.freeCashFlow || 0) / 1e6);
       const sharesY = row.weightedAverageShsOutDil || profile.sharesOutstanding || 1;
-      const fcfPS = parseFloat(((row.freeCashFlow || 0) / sharesY).toFixed(2));
-      const prevPS = i > 0 ? histRaw[i-1].freeCashFlow / (histRaw[i-1].weightedAverageShsOutDil || sharesY) : null;
-      const yoy = prevPS !== null && prevPS !== 0 ? Math.round(((row.freeCashFlow / (row.weightedAverageShsOutDil || sharesY)) - prevPS) / Math.abs(prevPS) * 100) : null;
-      const yearLabel = (row.calendarYear || row.date?.slice(0,4) || '');
-      return { year: yearLabel, fcfM, fcfPS, yoy };
+      const fcfM    = Math.round((row.freeCashFlow || 0) / 1e6);
+      const fcfPS   = parseFloat(((row.freeCashFlow || 0) / sharesY).toFixed(2));
+      const prevRow = i > 0 ? histRaw[i - 1] : null;
+      const prevPS  = prevRow ? (prevRow.freeCashFlow || 0) / (prevRow.weightedAverageShsOutDil || sharesY) : null;
+      const yoy     = prevPS !== null && prevPS !== 0
+        ? Math.round(((row.freeCashFlow / sharesY) - prevPS) / Math.abs(prevPS) * 100) : null;
+      return { year: (row.calendarYear || (row.date || '').slice(0, 4) || ''), fcfM, fcfPS, yoy };
     });
 
     const lastEntry   = hist[hist.length - 1];
     const sharesOutM  = Math.round((profile.sharesOutstanding || 0) / 1e6 * 100) / 100;
-    const exchangeStr = (profile.exchangeShortName || profile.exchange || '') + ' · ' + (profile.city || profile.country || '');
+    const exchangeStr = (profile.exchangeShortName || profile.exchange || '') + ' - ' + (profile.city || profile.country || '');
     const fyLabel     = 'FY ' + (lastEntry.year || new Date().getFullYear() - 1);
 
-    // Build new COMPANY object
     COMPANY = {
       name:       profile.companyName || ticker,
       ticker:     ticker,
       exchange:   exchangeStr,
-      sector:     profile.sector || profile.industry || '—',
+      sector:     profile.sector || profile.industry || '-',
       currency:   currency,
       fy:         fyLabel,
       hist,
-      sourceNote: 'Source: Financial Modeling Prep API · ' + ticker + ' annual filings. FCF = operating cash flow minus capex.',
+      sourceNote: 'Source: Financial Modeling Prep API - ' + ticker + ' annual filings. FCF = operating cash flow minus capex.',
       defaults: {
-        fcf:      lastEntry.fcfPS,
-        price:    parseFloat((profile.price || 0).toFixed(2)),
-        netcash:  parseFloat(netCashPS.toFixed(2)),
-        g1:       10, g2: 7, gt: 3, wacc: 10, mos: 20,
-        shares:   sharesOutM
+        fcf:     lastEntry.fcfPS,
+        price:   parseFloat((profile.price || 0).toFixed(2)),
+        netcash: parseFloat(netCashPS.toFixed(2)),
+        g1:      phase1G,
+        g2:      phase2G,
+        gt:      3,
+        wacc:    waccCalc,
+        mos:     20,
+        shares:  sharesOutM
       }
     };
 
-    // Fill manual setup fields too
+    // Fill setup panel fields
     document.getElementById('cfg-name').value     = COMPANY.name;
     document.getElementById('cfg-ticker').value   = COMPANY.ticker;
     document.getElementById('cfg-exchange').value = COMPANY.exchange;
@@ -1830,7 +1867,7 @@ async function fetchFMPData() {
     document.getElementById('cfg-currency').value = COMPANY.currency;
     document.getElementById('cfg-fy').value       = COMPANY.fy;
 
-    // Fill hist input rows
+    // Fill historical FCF rows
     COMPANY.hist.forEach((d, i) => {
       const yr = document.getElementById('hrow-year-' + i);
       const ps = document.getElementById('hrow-fcfps-' + i);
@@ -1840,21 +1877,22 @@ async function fetchFMPData() {
       if (fm) fm.value = d.fcfM;
     });
 
-    // Apply to model
     updatePageFromCompany();
     rebuildHistChart();
     resetInputs();
 
     const sign = netCashPS >= 0 ? '+' : '';
     setFetchStatus('success',
-      '&#10003; <strong>' + COMPANY.name + '</strong> loaded — ' + hist.length + ' years of FCF history pulled. ' +
-      'Current price: ' + currency + profile.price?.toFixed(2) + ' · ' +
-      'Shares: ' + sharesOutM + 'M · ' +
-      'Net cash/share: ' + currency + sign + parseFloat(netCashPS.toFixed(2)) + '. ' +
-      'Review the model assumptions below, then click Calculate.'
+      '&#10003; <strong>' + COMPANY.name + '</strong> loaded successfully.<br>' +
+      'Price: ' + currency + parseFloat((profile.price || 0).toFixed(2)) +
+      ' | Shares: ' + sharesOutM + 'M' +
+      ' | Net cash/share: ' + currency + sign + parseFloat(netCashPS.toFixed(2)) + '<br>' +
+      'Phase 1 growth: ' + phase1G + '% (blended FCF + revenue CAGR: ' + fcfCAGR + '% / ' + revenueCAGR + '%)' +
+      ' | Phase 2: ' + phase2G + '%' +
+      ' | WACC: ' + waccCalc + '% (beta ' + parseFloat(beta.toFixed(2)) + ')<br>' +
+      'All model assumptions pre-filled. Review and click Calculate.'
     );
 
-    // Scroll to model assumptions
     setTimeout(() => {
       document.getElementById('setup-section')?.nextElementSibling?.nextElementSibling?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 600);
