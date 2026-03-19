@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCF Intrinsic Value — Coty Inc. (COTY)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #0a0b0d;
+    --bg2: #111318;
+    --bg3: #181c22;
+    --bg4: #1f242d;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8eaf0;
+    --text2: #8a909e;
+    --text3: #555d6e;
+    --accent: #c8f55a;
+    --accent2: #a8d444;
+    --accent-dim: rgba(200,245,90,0.12);
+    --blue: #4a9eff;
+    --teal: #2dd4a0;
+    --red: #ff5e5e;
+    --amber: #ffb547;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-mono: 'DM Mono', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    background: rgba(10,11,13,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 14px;
+    color: #0a0b0d;
+    flex-shrink: 0;
+  }
+  .logo-text {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+    color: var(--text);
+  }
+  .logo-text span { color: var(--accent); }
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+  }
+  .header-pill {
+    padding: 4px 10px;
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    color: var(--text2);
+    font-size: 11px;
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 16px; height: 1px;
+    background: var(--accent);
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero-sub {
+    font-size: 13px;
+    color: var(--text2);
+    max-width: 560px;
+    line-height: 1.7;
+  }
+  .company-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 24px;
+    padding: 10px 16px;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    background: var(--bg2);
+  }
+  .badge-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+  .badge-text { font-size: 12px; color: var(--text2); }
+  .badge-ticker { font-size: 12px; color: var(--text); font-weight: 500; }
+
+  /* SECTION STRUCTURE */
+  .section {
+    padding: 40px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-num {
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--text);
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* HISTORY CHART */
+  .history-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+    align-items: start;
+  }
+  .chart-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .chart-panel-title {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .chart-legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .chart-legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .leg-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .chart-wrap { position: relative; width: 100%; }
+
+  /* STAT CARDS SIDEBAR */
+  .stat-cards { display: flex; flex-direction: column; gap: 12px; }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--border2); }
+  .stat-year {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .stat-fcf {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--text);
+  }
+  .stat-total {
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .stat-badge {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .badge-up { background: rgba(45,212,160,0.12); color: var(--teal); }
+  .badge-down { background: rgba(255,94,94,0.12); color: var(--red); }
+  .badge-neutral { background: rgba(255,181,71,0.12); color: var(--amber); }
+
+  /* INPUTS */
+  .inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .input-group label {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+  .input-group input {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text);
+    width: 100%;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  .input-group input::-webkit-outer-spin-button,
+  .input-group input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .input-group input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--bg3);
+  }
+  .input-hint {
+    font-size: 10px;
+    color: var(--text3);
+    line-height: 1.4;
+  }
+  .inputs-sub-label {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin: 24px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .inputs-sub-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* CALCULATE BUTTON */
+  .calc-row {
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .calc-btn {
+    padding: 13px 32px;
+    background: var(--accent);
+    color: #0a0b0d;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .calc-btn:hover { background: var(--accent2); }
+  .calc-btn:active { transform: scale(0.98); }
+  .reset-btn {
+    padding: 13px 20px;
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .reset-btn:hover { border-color: var(--text2); color: var(--text); }
+
+  /* RESULTS */
+  #results { display: none; }
+  #results.visible { display: block; }
+
+  .results-hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .result-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    transition: border-color 0.2s;
+  }
+  .result-card:first-child {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+  .result-label {
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+  .result-value {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .result-value.highlight { color: var(--accent); }
+  .result-sub { font-size: 11px; color: var(--text2); }
+  .result-sub.up { color: var(--teal); }
+  .result-sub.down { color: var(--red); }
+  .result-sub.warn { color: var(--amber); }
+
+  /* VERDICT BAR */
+  .verdict-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+  }
+  .verdict-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .verdict-label { font-size: 11px; color: var(--text3); letter-spacing: 0.04em; }
+  .verdict-badge {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+  .verdict-badge.up { background: rgba(45,212,160,0.15); color: var(--teal); border: 1px solid rgba(45,212,160,0.3); }
+  .verdict-badge.down { background: rgba(255,94,94,0.15); color: var(--red); border: 1px solid rgba(255,94,94,0.3); }
+  .verdict-badge.warn { background: rgba(255,181,71,0.15); color: var(--amber); border: 1px solid rgba(255,181,71,0.3); }
+  .progress-track {
+    height: 6px;
+    background: var(--bg4);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  .price-markers {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  /* PROJECTION SECTION */
+  .proj-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; border-radius: 12px; }
+  table.dcf-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 540px;
+    background: var(--bg2);
+  }
+  table.dcf-table thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+  table.dcf-table th {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 12px 16px;
+    text-align: right;
+    font-weight: 400;
+  }
+  table.dcf-table th:first-child { text-align: left; }
+  table.dcf-table td {
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--text2);
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+  table.dcf-table td:first-child { text-align: left; color: var(--text); }
+  table.dcf-table tbody tr:hover { background: var(--bg3); }
+  table.dcf-table .phase1 td:first-child { border-left: 2px solid var(--blue); }
+  table.dcf-table .phase2 td:first-child { border-left: 2px solid var(--teal); }
+  table.dcf-table .total-row td { font-weight: 500; color: var(--text); border-bottom: none; background: var(--bg3); }
+  table.dcf-table .terminal-row td { color: var(--text); border-top: 1px solid var(--border2); }
+
+  /* VALUE BREAKDOWN SIDEBAR */
+  .breakdown-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+  }
+  .breakdown-title {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .breakdown-item:last-child { border-bottom: none; }
+  .breakdown-item-label { font-size: 12px; color: var(--text2); }
+  .breakdown-item-val { font-size: 13px; color: var(--text); font-weight: 500; }
+  .breakdown-item-val.accent { color: var(--accent); }
+  .breakdown-bar-wrap { margin-top: 10px; }
+  .breakdown-bar {
+    display: flex;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 6px;
+    gap: 1px;
+  }
+  .bb-seg { height: 100%; transition: width 0.5s; }
+
+  /* SENSITIVITY TABLE */
+  .sensitivity-grid {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  table.sens-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg2);
+    min-width: 400px;
+  }
+  table.sens-table th {
+    padding: 10px 14px;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text3);
+    font-weight: 400;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  table.sens-table th:first-child { text-align: left; }
+  table.sens-table td {
+    padding: 9px 14px;
+    font-size: 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+  }
+  table.sens-table td:first-child { text-align: left; color: var(--text3); font-size: 11px; }
+  table.sens-table tr:last-child td { border-bottom: none; }
+  table.sens-table .cell-up { color: var(--teal); background: rgba(45,212,160,0.06); }
+  table.sens-table .cell-down { color: var(--red); background: rgba(255,94,94,0.06); }
+  table.sens-table .cell-current { border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; }
+
+  /* FMP FETCH UI */
+  .fetch-panel {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 28px;
+  }
+  .fetch-panel-title {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .fetch-panel-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .fetch-panel-sub a { color: var(--blue); text-decoration: none; }
+  .fetch-panel-sub a:hover { text-decoration: underline; }
+  .fetch-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 180px auto;
+    gap: 10px;
+    align-items: end;
+  }
+  .fetch-btn {
+    padding: 11px 18px;
+    background: var(--accent);
+    color: #0a0b0d;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, opacity 0.15s;
+    height: 40px;
+  }
+  .fetch-btn:hover { background: var(--accent2); }
+  .fetch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .fetch-status {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    display: none;
+  }
+  .fetch-status.loading { display: block; background: rgba(74,158,255,0.08); color: var(--blue); border: 1px solid rgba(74,158,255,0.2); }
+  .fetch-status.success { display: block; background: rgba(45,212,160,0.08); color: var(--teal); border: 1px solid rgba(45,212,160,0.2); }
+  .fetch-status.error   { display: block; background: rgba(255,94,94,0.08);  color: var(--red);  border: 1px solid rgba(255,94,94,0.2); }
+  .fetch-tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 4px; background: rgba(200,245,90,0.1); color: var(--accent); margin-left: 6px; vertical-align: middle; }
+  .key-saved-badge { display: none; font-size: 10px; color: var(--teal); margin-top: 4px; }
+  .key-saved-badge.visible { display: block; }
+  @media (max-width: 700px) {
+    .fetch-row { grid-template-columns: 1fr 1fr; }
+    .fetch-row .fetch-btn { grid-column: span 2; }
+  }
+
+  /* DEFINITIONS */
+  .def-intro { font-size:12px; color:var(--text2); line-height:1.8; max-width:680px; margin-bottom:32px; }
+  .def-categories { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:28px; }
+  .def-cat-btn {
+    padding:6px 14px; border-radius:20px; font-family:var(--font-mono); font-size:11px;
+    letter-spacing:0.04em; cursor:pointer; border:1px solid var(--border2);
+    background:transparent; color:var(--text2); transition:all 0.15s;
+  }
+  .def-cat-btn:hover { border-color:var(--text2); color:var(--text); }
+  .def-cat-btn.active { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
+  .def-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  .def-card {
+    background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+    padding:20px 22px; transition:border-color 0.2s; cursor:default;
+  }
+  .def-card:hover { border-color:var(--border2); }
+  .def-card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+  .def-term { font-family:var(--font-display); font-size:16px; font-weight:300; color:var(--text); line-height:1.2; }
+  .def-abbr { font-size:10px; letter-spacing:0.06em; padding:3px 8px; border-radius:4px; background:var(--bg4); color:var(--text3); flex-shrink:0; margin-top:2px; }
+  .def-desc { font-size:12px; color:var(--text2); line-height:1.75; margin-bottom:12px; }
+  .def-formula {
+    font-size:11px; color:var(--text3); font-family:var(--font-mono);
+    background:var(--bg4); border-radius:6px; padding:8px 12px;
+    border-left:2px solid var(--border2); line-height:1.6;
+  }
+  .def-formula strong { color:var(--accent); font-weight:400; }
+  .def-tag { display:inline-block; margin-top:10px; font-size:10px; padding:2px 8px; border-radius:4px; }
+  .def-tag.model { background:rgba(74,158,255,0.1); color:var(--blue); }
+  .def-tag.ratio { background:rgba(45,212,160,0.1); color:var(--teal); }
+  .def-tag.concept { background:rgba(200,245,90,0.1); color:var(--accent); }
+  .def-tag.risk { background:rgba(255,94,94,0.1); color:var(--red); }
+  .def-hidden { display:none; }
+  .ratio-table-wrap { overflow-x:auto; border-radius:12px; border:1px solid var(--border); margin-top:24px; }
+  table.ratio-table { width:100%; border-collapse:collapse; background:var(--bg2); min-width:600px; }
+  table.ratio-table thead tr { border-bottom:1px solid var(--border); }
+  table.ratio-table th { font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text3); padding:12px 16px; font-weight:400; text-align:left; }
+  table.ratio-table td { padding:11px 16px; font-size:12px; color:var(--text2); border-bottom:1px solid var(--border); vertical-align:top; }
+  table.ratio-table td:first-child { color:var(--text); font-weight:500; white-space:nowrap; }
+  table.ratio-table tr:last-child td { border-bottom:none; }
+  table.ratio-table tbody tr:hover { background:var(--bg3); }
+  .ratio-good { color:var(--teal); }
+  .ratio-warn { color:var(--amber); }
+  .ratio-bad  { color:var(--red); }
+  @media (max-width:760px) { .def-grid { grid-template-columns:1fr; } }
+
+  /* VALUATION INDICATOR */
+  .val-indicator-banner {
+    display: none;
+    position: sticky;
+    top: 60px;
+    z-index: 90;
+    width: 100%;
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .val-indicator-banner.visible { display: block; }
+  .val-indicator-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 40px;
+    gap: 16px;
+    backdrop-filter: blur(12px);
+  }
+  .val-indicator-inner.state-undervalued { background: rgba(45,212,160,0.08); }
+  .val-indicator-inner.state-fair       { background: rgba(255,181,71,0.08); }
+  .val-indicator-inner.state-overvalued { background: rgba(255,94,94,0.08); }
+  .val-ind-left { display: flex; align-items: center; gap: 14px; }
+  .val-ind-icon {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .state-undervalued .val-ind-icon { background: rgba(45,212,160,0.15); }
+  .state-fair        .val-ind-icon { background: rgba(255,181,71,0.15); }
+  .state-overvalued  .val-ind-icon { background: rgba(255,94,94,0.15); }
+  .val-ind-label {
+    font-family: var(--font-display);
+    font-size: 15px; font-weight: 300;
+    letter-spacing: -0.01em;
+  }
+  .state-undervalued .val-ind-label { color: var(--teal); }
+  .state-fair        .val-ind-label { color: var(--amber); }
+  .state-overvalued  .val-ind-label { color: var(--red); }
+  .val-ind-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .val-ind-right { display: flex; align-items: center; gap: 20px; }
+  .val-ind-stat { text-align: right; }
+  .val-ind-stat-label { font-size: 10px; color: var(--text3); letter-spacing: 0.04em; text-transform: uppercase; }
+  .val-ind-stat-value { font-size: 14px; font-weight: 500; margin-top: 1px; }
+  .state-undervalued .val-ind-stat-value.primary { color: var(--teal); }
+  .state-fair        .val-ind-stat-value.primary { color: var(--amber); }
+  .state-overvalued  .val-ind-stat-value.primary { color: var(--red); }
+  .val-ind-stat-value.neutral { color: var(--text2); }
+  .val-ind-divider { width: 1px; height: 32px; background: var(--border2); }
+  .val-ind-pct-badge {
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 500; letter-spacing: 0.02em;
+  }
+  .state-undervalued .val-ind-pct-badge { background: rgba(45,212,160,0.15); color: var(--teal); border: 1px solid rgba(45,212,160,0.3); }
+  .state-fair        .val-ind-pct-badge { background: rgba(255,181,71,0.15); color: var(--amber); border: 1px solid rgba(255,181,71,0.3); }
+  .state-overvalued  .val-ind-pct-badge { background: rgba(255,94,94,0.15); color: var(--red); border: 1px solid rgba(255,94,94,0.3); }
+
+  /* HERO VALUATION PILL */
+  .hero-val-pill {
+    display: none;
+    margin-top: 20px;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    max-width: fit-content;
+    transition: all 0.3s;
+  }
+  .hero-val-pill.visible { display: flex; }
+  .hvp-icon {
+    width: 40px; height: 40px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .hvp-state-undervalued { background: rgba(45,212,160,0.12); border-color: rgba(45,212,160,0.25); }
+  .hvp-state-fair        { background: rgba(255,181,71,0.12);  border-color: rgba(255,181,71,0.25); }
+  .hvp-state-overvalued  { background: rgba(255,94,94,0.12);   border-color: rgba(255,94,94,0.25); }
+  .hvp-title { font-family: var(--font-display); font-size: 17px; font-weight: 300; }
+  .hvp-state-undervalued .hvp-title { color: var(--teal); }
+  .hvp-state-fair        .hvp-title { color: var(--amber); }
+  .hvp-state-overvalued  .hvp-title { color: var(--red); }
+  .hvp-detail { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.5; }
+  .hvp-metrics { display: flex; gap: 16px; margin-left: 8px; padding-left: 16px; border-left: 1px solid var(--border); }
+  .hvp-metric-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; }
+  .hvp-metric-val { font-size: 14px; font-weight: 500; color: var(--text); margin-top: 2px; }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 40px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .footer-disclaimer { max-width: 600px; line-height: 1.6; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in { animation: fadeUp 0.4s ease forwards; }
+  .animate-in:nth-child(1) { animation-delay: 0.05s; }
+  .animate-in:nth-child(2) { animation-delay: 0.1s; }
+  .animate-in:nth-child(3) { animation-delay: 0.15s; }
+  .animate-in:nth-child(4) { animation-delay: 0.2s; }
+
+  button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  input  { -webkit-tap-highlight-color: transparent; }
+  @media (max-width: 640px) {
+    .chart-wrap[style*="height:220px"] { height: 180px !important; }
+    .chart-wrap[style*="height:260px"] { height: 200px !important; }
+  }
+    .container { padding: 0 20px; }
+    header { padding: 0 20px; }
+    .history-grid, .proj-grid { grid-template-columns: 1fr; }
+    .results-hero { grid-template-columns: 1fr 1fr; }
+    .inputs-grid { grid-template-columns: 1fr 1fr; }
+    .hero { padding: 36px 0 28px; }
+    .def-grid { grid-template-columns: 1fr 1fr; }
+    .val-ind-right { gap: 12px; }
+    .val-ind-divider { display: none; }
+    .val-ind-stat { display: none; }
+    .val-ind-sub { display: none; }
+    .val-indicator-inner { padding: 10px 20px; }
+  }
+  @media (max-width: 640px) {
+    .container { padding: 0 16px; }
+    header { padding: 0 16px; height: 52px; }
+    .header-meta span:not(.header-pill) { display: none; }
+    .logo-text { font-size: 14px; }
+    .hero { padding: 28px 0 20px; }
+    .hero-title { font-size: 28px; }
+    .hero-sub { font-size: 12px; }
+    .company-badge { flex-wrap: wrap; gap: 6px; padding: 8px 12px; }
+    .badge-text { font-size: 11px; }
+    .inputs-grid { grid-template-columns: 1fr; }
+    .results-hero { grid-template-columns: 1fr 1fr; }
+    .result-value { font-size: 22px; }
+    .section-title { font-size: 17px; }
+    .calc-row { flex-direction: column; align-items: stretch; }
+    .calc-btn, .reset-btn { width: 100%; text-align: center; }
+    .stat-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-fcf { font-size: 18px; }
+    .val-indicator-inner { padding: 8px 16px; flex-wrap: wrap; gap: 8px; }
+    .val-ind-right { width: 100%; justify-content: space-between; }
+    .val-ind-stat { display: block; }
+    .val-ind-divider { display: none; }
+    .val-ind-sub { display: none; }
+    .val-ind-pct-badge { font-size: 11px; padding: 4px 10px; }
+    .hero-val-pill { flex-wrap: wrap; gap: 10px; }
+    .hvp-metrics { border-left: none; padding-left: 0; margin-left: 0; border-top: 1px solid var(--border); padding-top: 10px; width: 100%; }
+    .breakdown-panel { margin-top: 16px; }
+    .def-grid { grid-template-columns: 1fr; }
+    .sensitivity-grid { font-size: 11px; }
+    table.sens-table th, table.sens-table td { padding: 7px 8px; font-size: 10px; }
+    table.dcf-table th, table.dcf-table td { padding: 7px 10px; font-size: 11px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px 16px; }
+    .section { padding: 28px 0; }
+    .inputs-sub-label { margin: 18px 0 10px; }
+  }
+  @media (max-width: 400px) {
+    .results-hero { grid-template-columns: 1fr; }
+    .hero-title { font-size: 24px; }
+    .stat-cards { grid-template-columns: 1fr; }
+    .val-ind-stat { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">
+    <div class="logo-mark">IV</div>
+    <div class="logo-text">Intrinsic<span>Value</span></div>
+  </div>
+  <div class="header-meta">
+    <span>DCF Model</span>
+    <span class="header-pill" id="hdr-ticker">—</span>
+    <span id="hdr-year">—</span>
+  </div>
+</header>
+
+<!-- STICKY VALUATION INDICATOR BANNER -->
+<div class="val-indicator-banner" id="val-banner">
+  <div class="val-indicator-inner" id="val-banner-inner">
+    <div class="val-ind-left">
+      <div class="val-ind-icon" id="val-banner-icon"></div>
+      <div>
+        <div class="val-ind-label" id="val-banner-label">—</div>
+        <div class="val-ind-sub" id="val-banner-sub">Calculate to see valuation status</div>
+      </div>
+    </div>
+    <div class="val-ind-right">
+      <div class="val-ind-stat">
+        <div class="val-ind-stat-label">Intrinsic value</div>
+        <div class="val-ind-stat-value primary" id="val-banner-iv">—</div>
+      </div>
+      <div class="val-ind-divider"></div>
+      <div class="val-ind-stat">
+        <div class="val-ind-stat-label">Current price</div>
+        <div class="val-ind-stat-value neutral" id="val-banner-price">—</div>
+      </div>
+      <div class="val-ind-divider"></div>
+      <div class="val-ind-stat">
+        <div class="val-ind-stat-label">Buy below</div>
+        <div class="val-ind-stat-value neutral" id="val-banner-buy">—</div>
+      </div>
+      <div class="val-ind-pct-badge" id="val-banner-pct">—</div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="container">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-tag">Discounted Cash Flow</div>
+      <h1 class="hero-title">What is <span id="hero-name">your company</span><br>actually <em>worth?</em></h1>
+      <p class="hero-sub" id="hero-sub">Enter your company details below to build a two-phase DCF model using real historical free cash flow data.</p>
+      <div class="company-badge">
+        <div class="badge-dot"></div>
+        <span class="badge-ticker" id="badge-ticker">—</span>
+        <span class="badge-text" id="badge-text">— Fill in company setup to get started</span>
+      </div>
+
+      <!-- HERO VALUATION PILL -->
+      <div class="hero-val-pill" id="hero-val-pill">
+        <div class="hvp-icon" id="hvp-icon"></div>
+        <div>
+          <div class="hvp-title" id="hvp-title">—</div>
+          <div class="hvp-detail" id="hvp-detail">—</div>
+        </div>
+        <div class="hvp-metrics">
+          <div>
+            <div class="hvp-metric-label">Upside</div>
+            <div class="hvp-metric-val" id="hvp-upside">—</div>
+          </div>
+          <div>
+            <div class="hvp-metric-label">FCF yield</div>
+            <div class="hvp-metric-val" id="hvp-yield">—</div>
+          </div>
+          <div>
+            <div class="hvp-metric-label">P/FCF</div>
+            <div class="hvp-metric-val" id="hvp-pfcf">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPANY SETUP -->
+    <section class="section" id="setup-section">
+      <div class="section-header">
+        <span class="section-num" style="color:var(--accent)">↓</span>
+        <h2 class="section-title">Company setup</h2>
+        <div class="section-line"></div>
+      </div>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:20px;line-height:1.7">Enter a ticker to auto-fetch data from FMP, or fill in manually below.</p>
+
+      <!-- FMP AUTO-FETCH PANEL -->
+      <div class="fetch-panel">
+        <div class="fetch-panel-title">Auto-fetch from Financial Modeling Prep <span class="fetch-tag">Free API</span></div>
+        <div class="fetch-panel-sub">Enter your FMP API key and a ticker to pull 6 years of FCF history, current price, net debt, and company info in one click. Your key is saved locally in this browser. Get a free key at <a href="https://financialmodelingprep.com/developer/docs/" target="_blank">financialmodelingprep.com</a> — 250 calls/day on the free tier.</div>
+        <div class="fetch-row">
+          <div class="input-group">
+            <label>Ticker</label>
+            <input id="fetch-ticker" type="text" placeholder="e.g. AAPL" style="text-transform:uppercase;font-family:var(--font-mono)" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div class="input-group">
+            <label>FMP API key</label>
+            <input id="fetch-apikey" type="password" placeholder="Paste your free API key here" style="font-family:var(--font-mono)">
+            <div class="key-saved-badge" id="key-saved-badge">✓ Key saved in browser</div>
+          </div>
+          <div class="input-group">
+            <label>Currency symbol</label>
+            <input id="fetch-currency" type="text" placeholder="$ or €" value="$" style="font-family:var(--font-mono)">
+            <div class="input-hint">FMP returns USD by default</div>
+          </div>
+          <button class="fetch-btn" id="fetch-btn" onclick="fetchFMPData()">Fetch data →</button>
+        </div>
+        <div class="fetch-status" id="fetch-status"></div>
+      </div>
+
+      <!-- MANUAL ENTRY -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <span style="font-size:11px;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap">Or fill in manually</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+
+      <div class="inputs-grid">
+        <div class="input-group">
+          <label>Company name</label>
+          <input id="cfg-name" type="text" placeholder="e.g. Apple Inc." style="font-family:var(--font-mono)">
+          <div class="input-hint">Full legal or common name</div>
+        </div>
+        <div class="input-group">
+          <label>Ticker symbol</label>
+          <input id="cfg-ticker" type="text" placeholder="e.g. AAPL" style="font-family:var(--font-mono);text-transform:uppercase">
+          <div class="input-hint">Stock exchange ticker</div>
+        </div>
+        <div class="input-group">
+          <label>Exchange &amp; location</label>
+          <input id="cfg-exchange" type="text" placeholder="e.g. NASDAQ · Cupertino" style="font-family:var(--font-mono)">
+          <div class="input-hint">Exchange name and HQ city</div>
+        </div>
+      </div>
+      <div class="inputs-grid" style="margin-top:12px">
+        <div class="input-group">
+          <label>Industry / sector</label>
+          <input id="cfg-sector" type="text" placeholder="e.g. Consumer technology" style="font-family:var(--font-mono)">
+        </div>
+        <div class="input-group">
+          <label>Currency symbol</label>
+          <input id="cfg-currency" type="text" placeholder="e.g. $ or €" style="font-family:var(--font-mono)">
+          <div class="input-hint">Used throughout all labels</div>
+        </div>
+        <div class="input-group">
+          <label>Latest fiscal year</label>
+          <input id="cfg-fy" type="text" placeholder="e.g. FY 2024" style="font-family:var(--font-mono)">
+          <div class="input-hint">Shown in header and labels</div>
+        </div>
+      </div>
+      <div class="inputs-sub-label" style="margin-top:20px">Historical FCF data</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:14px;line-height:1.6">Enter up to 6 years of historical free cash flow. Leave unused rows blank. FCF/share = total FCF ÷ diluted shares for that year.</p>
+      <div id="hist-input-rows" style="display:grid;gap:10px"></div>
+
+      <button class="calc-btn" style="margin-top:20px" onclick="applySetup()">Apply company setup →</button>
+    </section>
+
+    <!-- HISTORICAL DATA -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">Historical free cash flow</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="history-grid">
+        <div class="chart-panel">
+          <div class="chart-panel-title" id="hist-chart-title">FCF per share &amp; total FCF</div>
+          <div class="chart-legend">
+            <span><span class="leg-dot" style="background:#4a9eff"></span>FCF / share (<span class="cur-label">€</span>, left axis)</span>
+            <span><span class="leg-dot" style="background:#2dd4a0"></span>Total FCF (<span class="cur-label">€</span>M, right axis)</span>
+          </div>
+          <div class="chart-wrap" style="height:220px"><canvas id="hist-chart"></canvas></div>
+          <div id="hist-source-note" style="margin-top:14px;font-size:10px;color:var(--text3);line-height:1.6">Fill in company setup above to populate this chart.</div>
+        </div>
+        <div class="stat-cards" id="stat-cards"></div>
+      </div>
+    </section>
+
+    <!-- INPUTS -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Model assumptions</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="inputs-sub-label">Base inputs</div>
+      <div class="inputs-grid">
+        <div class="input-group">
+          <label>FCF per share — latest year (<span class="cur-label">€</span>)</label>
+          <input id="fcf" type="number" value="" step="0.01">
+          <div class="input-hint" id="hint-fcf">Total FCF ÷ diluted shares outstanding</div>
+        </div>
+        <div class="input-group">
+          <label>Current stock price (<span class="cur-label">€</span>)</label>
+          <input id="price" type="number" value="" step="1">
+          <div class="input-hint" id="hint-price">Latest closing price</div>
+        </div>
+        <div class="input-group">
+          <label>Net cash per share (<span class="cur-label">€</span>)</label>
+          <input id="netcash" type="number" value="0" step="1">
+          <div class="input-hint">Cash minus debt ÷ shares (positive = net cash)</div>
+        </div>
+      </div>
+
+      <div class="inputs-sub-label">Growth assumptions</div>
+      <div class="inputs-grid">
+        <div class="input-group">
+          <label>Phase 1 growth — yr 1–5 (%)</label>
+          <input id="g1" type="number" value="10" step="0.5">
+          <div class="input-hint">Near-term growth estimate (yr 1–5)</div>
+        </div>
+        <div class="input-group">
+          <label>Phase 2 growth — yr 6–10 (%)</label>
+          <input id="g2" type="number" value="7" step="0.5">
+          <div class="input-hint">Transition to maturity (yr 6–10)</div>
+        </div>
+        <div class="input-group">
+          <label>Terminal growth rate (%)</label>
+          <input id="gt" type="number" value="3" step="0.1">
+          <div class="input-hint">Long-run perpetuity — typically ≤ 3%</div>
+        </div>
+      </div>
+
+      <div class="inputs-sub-label">Discount &amp; safety</div>
+      <div class="inputs-grid">
+        <div class="input-group">
+          <label>Discount rate / WACC (%)</label>
+          <input id="wacc" type="number" value="10" step="0.1">
+          <div class="input-hint">Typically 8–12% for equities</div>
+        </div>
+        <div class="input-group">
+          <label>Margin of safety (%)</label>
+          <input id="mos" type="number" value="20" step="1">
+          <div class="input-hint">Buy only at intrinsic × (1 − MoS%)</div>
+        </div>
+        <div class="input-group">
+          <label>Shares outstanding (M)</label>
+          <input id="shares" type="number" value="" step="0.01">
+          <div class="input-hint">For total market cap comparison</div>
+        </div>
+      </div>
+
+      <div class="calc-row">
+        <button class="calc-btn" onclick="calculate()">Calculate intrinsic value →</button>
+        <button class="reset-btn" onclick="resetInputs()">Reset to defaults</button>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <div id="results">
+
+      <section class="section">
+        <div class="section-header">
+          <span class="section-num">03</span>
+          <h2 class="section-title">Valuation result</h2>
+          <div class="section-line"></div>
+        </div>
+
+        <div class="results-hero" id="result-cards"></div>
+
+        <div class="verdict-section">
+          <div class="verdict-header">
+            <div>
+              <div class="verdict-label">Price vs intrinsic value</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:4px" id="verdict-caption"></div>
+            </div>
+            <div class="verdict-badge" id="verdict-badge"></div>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="price-markers" id="price-markers"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <span class="section-num">04</span>
+          <h2 class="section-title">10-year cash flow projection</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="proj-grid">
+          <div class="chart-panel">
+            <div class="chart-panel-title">Projected FCF per share — discounted to present value</div>
+            <div class="chart-legend">
+              <span><span class="leg-dot" style="background:#4a9eff"></span>Phase 1 (yr 1–5)</span>
+              <span><span class="leg-dot" style="background:#2dd4a0"></span>Phase 2 (yr 6–10)</span>
+              <span><span class="leg-dot" style="background:#555d6e"></span>Terminal</span>
+            </div>
+            <div class="chart-wrap" style="height:260px"><canvas id="proj-chart"></canvas></div>
+          </div>
+          <div class="breakdown-panel">
+            <div class="breakdown-title">Value breakdown</div>
+            <div id="breakdown-items"></div>
+            <div class="breakdown-bar-wrap">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Composition of intrinsic value</div>
+              <div class="breakdown-bar" id="breakdown-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px">
+          <div class="table-wrap">
+            <table class="dcf-table" id="dcf-table"></table>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <span class="section-num">05</span>
+          <h2 class="section-title">Sensitivity analysis</h2>
+          <div class="section-line"></div>
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:18px;max-width:600px;line-height:1.7">Intrinsic value per share across different Phase 1 growth rates and WACC combinations. Your current inputs are highlighted.</p>
+        <div class="sensitivity-grid">
+          <table class="sens-table" id="sens-table"></table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- SECTION 06 — DEFINITIONS & RATIO REFERENCE (always visible) -->
+    <section class="section" id="section-defs">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2 class="section-title">Definitions &amp; ratio reference</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <p class="def-intro">Key terms used throughout this model — from core DCF mechanics to valuation ratios. Filter by category or browse all. Adyen's current figures (FY 2024) are referenced where relevant.</p>
+
+      <div class="def-categories">
+        <button class="def-cat-btn active" onclick="filterDefs('all',this)">All</button>
+        <button class="def-cat-btn" onclick="filterDefs('model',this)">Model inputs</button>
+        <button class="def-cat-btn" onclick="filterDefs('ratio',this)">Valuation ratios</button>
+        <button class="def-cat-btn" onclick="filterDefs('concept',this)">Key concepts</button>
+        <button class="def-cat-btn" onclick="filterDefs('risk',this)">Risk &amp; safety</button>
+      </div>
+
+      <div class="def-grid" id="def-grid">
+
+        <div class="def-card" data-cat="model">
+          <div class="def-card-header"><span class="def-term">Free Cash Flow</span><span class="def-abbr">FCF</span></div>
+          <div class="def-desc">The cash a company generates after paying for capital expenditures needed to maintain or expand its asset base. It represents the actual cash available to shareholders, debt holders, and for reinvestment — the purest measure of a company's earning power.</div>
+          <div class="def-formula"><strong>FCF</strong> = Operating Cash Flow − Capital Expenditure<br>Adyen FY 2024: €1,603M total / <strong>€51.45/share</strong></div>
+          <span class="def-tag model">Model input</span>
+        </div>
+
+        <div class="def-card" data-cat="model">
+          <div class="def-card-header"><span class="def-term">Discount Rate / WACC</span><span class="def-abbr">WACC</span></div>
+          <div class="def-desc">The Weighted Average Cost of Capital — the minimum return a company must earn to satisfy all capital providers (equity holders and debt holders). Used to discount future cash flows to present value. A higher WACC produces a lower intrinsic value estimate.</div>
+          <div class="def-formula"><strong>WACC</strong> = (E/V × Re) + (D/V × Rd × (1−T))<br>Typical range for growth equities: <strong>8–12%</strong></div>
+          <span class="def-tag model">Model input</span>
+        </div>
+
+        <div class="def-card" data-cat="model">
+          <div class="def-card-header"><span class="def-term">Terminal Growth Rate</span><span class="def-abbr">TGR</span></div>
+          <div class="def-desc">The assumed perpetual growth rate of free cash flow beyond the forecast period (year 10 onwards). Should never exceed long-run nominal GDP growth, as no company can grow faster than the economy indefinitely. Adyen's eurozone context supports a 2.5–3.5% range.</div>
+          <div class="def-formula"><strong>Terminal Value</strong> = FCF₁₀ × (1 + g) / (WACC − g)<br>Rule of thumb: ≤ <strong>3%</strong> for developed-market companies</div>
+          <span class="def-tag model">Model input</span>
+        </div>
+
+        <div class="def-card" data-cat="model">
+          <div class="def-card-header"><span class="def-term">Terminal Value</span><span class="def-abbr">TV</span></div>
+          <div class="def-desc">The present value of all cash flows beyond the 10-year explicit forecast period, calculated using the Gordon Growth Model. In high-growth companies like Adyen, terminal value often accounts for 50–70% of total intrinsic value — making the terminal growth rate assumption critically important.</div>
+          <div class="def-formula"><strong>TV</strong> = (FCF₁₀ × (1+g)) / (WACC − g)<br>Then discounted: <strong>TV PV</strong> = TV / (1+WACC)¹⁰</div>
+          <span class="def-tag model">Model input</span>
+        </div>
+
+        <div class="def-card" data-cat="concept">
+          <div class="def-card-header"><span class="def-term">Intrinsic Value</span><span class="def-abbr">IV</span></div>
+          <div class="def-desc">The estimated true or fundamental value of a security, independent of its current market price. Derived from discounting all future cash flows to present value and adding net assets. If market price is below intrinsic value, the stock may be undervalued — the foundation of value investing.</div>
+          <div class="def-formula"><strong>IV</strong> = PV of Phase 1 FCFs + PV of Phase 2 FCFs<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ PV of Terminal Value + Net Cash/Share</div>
+          <span class="def-tag concept">Key concept</span>
+        </div>
+
+        <div class="def-card" data-cat="concept">
+          <div class="def-card-header"><span class="def-term">Present Value</span><span class="def-abbr">PV</span></div>
+          <div class="def-desc">The current worth of a future sum of money, discounted at the WACC to account for the time value of money. A euro received today is worth more than a euro received in 10 years — PV quantifies exactly how much more, adjusting for risk and opportunity cost.</div>
+          <div class="def-formula"><strong>PV</strong> = Future Cash Flow / (1 + WACC)ⁿ<br>Where n = number of years into the future</div>
+          <span class="def-tag concept">Key concept</span>
+        </div>
+
+        <div class="def-card" data-cat="concept">
+          <div class="def-card-header"><span class="def-term">Two-Phase DCF Model</span><span class="def-abbr">DCF</span></div>
+          <div class="def-desc">A discounted cash flow model that separates projections into two explicit growth phases before applying a terminal value. Phase 1 (years 1–5) uses a higher near-term growth estimate; Phase 2 (years 6–10) assumes a lower, more sustainable rate as the company matures.</div>
+          <div class="def-formula">Phase 1 (yr 1–5): <strong>18%</strong> growth assumption<br>Phase 2 (yr 6–10): <strong>12%</strong> growth assumption</div>
+          <span class="def-tag concept">Key concept</span>
+        </div>
+
+        <div class="def-card" data-cat="concept">
+          <div class="def-card-header"><span class="def-term">Net Cash Position</span><span class="def-abbr">NCA</span></div>
+          <div class="def-desc">Cash and equivalents minus total financial debt. A positive net cash position is added to the DCF-derived equity value because this cash belongs to shareholders above and beyond the company's operating value. Adyen holds ~€10B in cash with minimal debt — a significant add-back of ~€321/share.</div>
+          <div class="def-formula"><strong>Net Cash/Share</strong> = (Cash − Debt) / Shares<br>Adyen FY 2024: ~€10B cash ÷ 31.16M shares = <strong>€321</strong></div>
+          <span class="def-tag concept">Key concept</span>
+        </div>
+
+        <div class="def-card" data-cat="risk">
+          <div class="def-card-header"><span class="def-term">Margin of Safety</span><span class="def-abbr">MoS</span></div>
+          <div class="def-desc">Coined by Benjamin Graham, the margin of safety is the discount to intrinsic value at which you are willing to buy. It provides a buffer against errors in your assumptions, unforeseen events, and model uncertainty. A 20–30% MoS is typical; higher MoS is preferred for volatile or uncertain businesses.</div>
+          <div class="def-formula"><strong>Buy price</strong> = Intrinsic Value × (1 − MoS%)<br>At 20% MoS: IV of €1,200 → buy at <strong>€960 or below</strong></div>
+          <span class="def-tag risk">Risk &amp; safety</span>
+        </div>
+
+        <div class="def-card" data-cat="risk">
+          <div class="def-card-header"><span class="def-term">Sensitivity Analysis</span><span class="def-abbr">SA</span></div>
+          <div class="def-desc">A technique that examines how intrinsic value changes as key assumptions vary. Because DCF outputs are highly sensitive to WACC and growth rate inputs, a sensitivity table shows a range of plausible outcomes rather than a single point estimate — critical for understanding model uncertainty.</div>
+          <div class="def-formula">Small changes compound: +1% WACC on a 10-yr model<br>can reduce intrinsic value by <strong>10–20%</strong></div>
+          <span class="def-tag risk">Risk &amp; safety</span>
+        </div>
+
+        <div class="def-card" data-cat="ratio">
+          <div class="def-card-header"><span class="def-term">Price-to-Earnings Ratio</span><span class="def-abbr">P/E</span></div>
+          <div class="def-desc">The most widely used valuation multiple. Shows how many euros investors are paying per euro of earnings. A high P/E may reflect high growth expectations or overvaluation; a low P/E may signal value or declining prospects. Compare against sector peers and historical averages.</div>
+          <div class="def-formula"><strong>P/E</strong> = Stock Price / Earnings Per Share (EPS)<br>Adyen FY 2024: ~€886 / ~€28 EPS ≈ <strong>~32×</strong></div>
+          <span class="def-tag ratio">Valuation ratio</span>
+        </div>
+
+        <div class="def-card" data-cat="ratio">
+          <div class="def-card-header"><span class="def-term">Price-to-Free-Cash-Flow</span><span class="def-abbr">P/FCF</span></div>
+          <div class="def-desc">Often preferred over P/E for capital-light businesses because FCF is harder to manipulate than net income. Shows how many euros the market pays per euro of free cash flow generated. Particularly relevant for Adyen, whose FCF conversion is exceptionally high (~50% of net revenue).</div>
+          <div class="def-formula"><strong>P/FCF</strong> = Market Cap / Free Cash Flow<br>Adyen FY 2024: €27.6B mkt cap / €1.6B FCF ≈ <strong>~17×</strong></div>
+          <span class="def-tag ratio">Valuation ratio</span>
+        </div>
+
+        <div class="def-card" data-cat="ratio">
+          <div class="def-card-header"><span class="def-term">EV / EBITDA</span><span class="def-abbr">EV/EBITDA</span></div>
+          <div class="def-desc">Enterprise value divided by earnings before interest, taxes, depreciation and amortisation. Capital-structure neutral — useful for comparing companies with different debt levels. Common in M&amp;A and cross-sector comparisons. For fintech payments, typical ranges are 20–50× for high-growth platforms.</div>
+          <div class="def-formula"><strong>EV/EBITDA</strong> = (Mkt Cap + Debt − Cash) / EBITDA<br>Adyen FY 2024 (approx): ~<strong>22–26×</strong></div>
+          <span class="def-tag ratio">Valuation ratio</span>
+        </div>
+
+        <div class="def-card" data-cat="ratio">
+          <div class="def-card-header"><span class="def-term">Price-to-Sales Ratio</span><span class="def-abbr">P/S</span></div>
+          <div class="def-desc">Market capitalisation divided by annual revenue (or net revenue for payment companies). Useful for early-stage or high-growth companies without consistent earnings. For payments platforms like Adyen, net revenue (take-rate revenue after interchange) is the relevant top line, not gross processed volume.</div>
+          <div class="def-formula"><strong>P/S</strong> = Market Cap / Annual Net Revenue<br>Adyen FY 2024: €27.6B / €2.3B net rev ≈ <strong>~12×</strong></div>
+          <span class="def-tag ratio">Valuation ratio</span>
+        </div>
+
+        <div class="def-card" data-cat="ratio">
+          <div class="def-card-header"><span class="def-term">FCF Yield</span><span class="def-abbr">FCF%</span></div>
+          <div class="def-desc">Free cash flow per share divided by share price — the inverse of P/FCF. Expressed as a percentage, it shows the cash return you receive relative to the price paid. A higher FCF yield generally indicates better value. Comparable to a bond's yield for equity investors.</div>
+          <div class="def-formula"><strong>FCF Yield</strong> = (FCF Per Share / Price) × 100<br>Adyen FY 2024: €51.45 / €886 ≈ <strong>5.8%</strong></div>
+          <span class="def-tag ratio">Valuation ratio</span>
+        </div>
+
+        <div class="def-card" data-cat="ratio">
+          <div class="def-card-header"><span class="def-term">Return on Invested Capital</span><span class="def-abbr">ROIC</span></div>
+          <div class="def-desc">Measures how efficiently a company generates profits from its invested capital. A ROIC consistently above WACC means the company is creating shareholder value — one of the most important long-term quality indicators. Adyen's capital-light model yields exceptionally high ROIC.</div>
+          <div class="def-formula"><strong>ROIC</strong> = NOPAT / Invested Capital<br>Adyen FY 2024 (approx): <strong>>40%</strong> — well above WACC</div>
+          <span class="def-tag ratio">Valuation ratio</span>
+        </div>
+
+      </div>
+
+      <!-- RATIO QUICK REFERENCE TABLE -->
+      <div style="margin-top:36px">
+        <div style="font-size:11px;letter-spacing:0.06em;color:var(--text3);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+          Quick ratio reference
+          <span style="flex:1;height:1px;background:var(--border);display:block"></span>
+        </div>
+        <div class="ratio-table-wrap">
+          <table class="ratio-table">
+            <thead><tr><th>Ratio</th><th>Formula</th><th>Low (value signal)</th><th>Fair range</th><th>High (growth premium)</th><th>Adyen FY 2024</th></tr></thead>
+            <tbody>
+              <tr><td>P/E</td><td>Price / EPS</td><td class="ratio-good">&lt; 15×</td><td>15–25×</td><td class="ratio-bad">&gt; 40×</td><td>~32×</td></tr>
+              <tr><td>P/FCF</td><td>Mkt Cap / FCF</td><td class="ratio-good">&lt; 15×</td><td>15–30×</td><td class="ratio-bad">&gt; 40×</td><td>~17×</td></tr>
+              <tr><td>EV/EBITDA</td><td>EV / EBITDA</td><td class="ratio-good">&lt; 10×</td><td>10–20×</td><td class="ratio-bad">&gt; 30×</td><td>~24×</td></tr>
+              <tr><td>P/S</td><td>Mkt Cap / Revenue</td><td class="ratio-good">&lt; 2×</td><td>2–8×</td><td class="ratio-bad">&gt; 15×</td><td>~12×</td></tr>
+              <tr><td>FCF Yield</td><td>FCF/Share ÷ Price</td><td class="ratio-bad">&lt; 2%</td><td>2–5%</td><td class="ratio-good">&gt; 6%</td><td>5.8%</td></tr>
+              <tr><td>ROIC</td><td>NOPAT / Inv. Capital</td><td class="ratio-bad">&lt; WACC</td><td>WACC – 20%</td><td class="ratio-good">&gt; 25%</td><td>&gt;40%</td></tr>
+              <tr><td>Margin of Safety</td><td>(IV − Price) / IV</td><td class="ratio-bad">&lt; 10%</td><td>10–20%</td><td class="ratio-good">&gt; 30%</td><td>Model output</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:10px;line-height:1.6">Benchmarks are indicative for large-cap technology/fintech companies. Ratios should always be interpreted relative to growth rate, sector, and interest rate environment. Adyen figures are approximations based on FY 2024 annual report.</div>
+      </div>
+
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="footer-disclaimer">
+    For informational and educational purposes only. Not financial advice. DCF models are inherently sensitive to assumptions — small changes in growth or discount rates can produce large swings in estimated value. Always conduct your own research before making any investment decision.
+  </div>
+  <div style="text-align:right">
+    <div style="color:var(--text2);margin-bottom:4px">IntrinsicValue / DCF</div>
+    <div id="footer-data-note">Data: enter company details above</div>
+  </div>
+</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// TEMPLATE CONFIG — pre-loaded with Adyen as an example
+// To use for another company, fill in the Company Setup panel and click Apply
+// ─────────────────────────────────────────────────────────────────────────────
+let COMPANY = {
+  name:     'Coty Inc.',
+  ticker:   'COTY',
+  exchange: 'NYSE · New York',
+  sector:   'Beauty — fragrance & cosmetics',
+  currency: '$',
+  fy:       'FY 2024',
+  hist: [
+    { year: 'FY2019', fcfM: 286,  fcfPS: 0.36,  yoy: null },
+    { year: 'FY2020', fcfM: -85,  fcfPS: -0.10, yoy: -128 },
+    { year: 'FY2021', fcfM: 237,  fcfPS: 0.29,  yoy: -390 },
+    { year: 'FY2022', fcfM: 316,  fcfPS: 0.38,  yoy: 31   },
+    { year: 'FY2023', fcfM: 519,  fcfPS: 0.61,  yoy: 61   },
+    { year: 'FY2024', fcfM: 369,  fcfPS: 0.43,  yoy: -30  },
+  ],
+  defaults: { fcf: 0.43, price: 3.19, netcash: -4.02, g1: 8, g2: 5, gt: 2.5, wacc: 10, mos: 25, shares: 872 },
+  sourceNote: 'Source: Coty Inc. annual 10-K filings, FY2019–FY2024. Fiscal year ends June 30. FCF = operating cash flow minus capex. Net debt ~$3.5B (~$4.02/share) deducted from intrinsic value.',
+};
+
+let histChartInstance = null;
+let projChart = null;
+
+function fmt(n, d=2) {
+  return n.toLocaleString('en-EU', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+
+function buildHistInputRows() {
+  const container = document.getElementById('hist-input-rows');
+  const rowLabels = ['Year 1 (oldest)', 'Year 2', 'Year 3', 'Year 4', 'Year 5', 'Year 6 (latest)'];
+  container.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    container.innerHTML += `
+      <div style="display:grid;grid-template-columns:120px 1fr 1fr 1fr;gap:10px;align-items:end">
+        <div class="input-group">
+          <label>Year</label>
+          <input id="hrow-year-${i}" type="text" placeholder="${2019+i}" style="font-family:var(--font-mono)">
+        </div>
+        <div class="input-group">
+          <label>FCF / share</label>
+          <input id="hrow-fcfps-${i}" type="number" placeholder="0.00" step="0.01">
+        </div>
+        <div class="input-group">
+          <label>Total FCF (M)</label>
+          <input id="hrow-fcfm-${i}" type="number" placeholder="0" step="1">
+        </div>
+        <div class="input-group">
+          <label style="color:var(--text3)">${rowLabels[i]}</label>
+          <div style="padding:9px 0;font-size:11px;color:var(--text3)">YoY auto-calculated</div>
+        </div>
+      </div>`;
+  }
+}
+
+function prefillSetup() {
+  document.getElementById('cfg-name').value     = COMPANY.name;
+  document.getElementById('cfg-ticker').value   = COMPANY.ticker;
+  document.getElementById('cfg-exchange').value = COMPANY.exchange;
+  document.getElementById('cfg-sector').value   = COMPANY.sector;
+  document.getElementById('cfg-currency').value = COMPANY.currency;
+  document.getElementById('cfg-fy').value       = COMPANY.fy;
+  COMPANY.hist.forEach((d, i) => {
+    const yr = document.getElementById('hrow-year-' + i);
+    const ps = document.getElementById('hrow-fcfps-' + i);
+    const fm = document.getElementById('hrow-fcfm-' + i);
+    if (yr) yr.value = d.year;
+    if (ps) ps.value = d.fcfPS;
+    if (fm) fm.value = d.fcfM;
+  });
+}
+
+function applySetup() {
+  const name     = document.getElementById('cfg-name').value.trim()     || 'Company';
+  const ticker   = document.getElementById('cfg-ticker').value.trim().toUpperCase() || '—';
+  const exchange = document.getElementById('cfg-exchange').value.trim() || '—';
+  const sector   = document.getElementById('cfg-sector').value.trim()   || '—';
+  const currency = document.getElementById('cfg-currency').value.trim() || '$';
+  const fy       = document.getElementById('cfg-fy').value.trim()       || 'Latest FY';
+
+  const hist = [];
+  for (let i = 0; i < 6; i++) {
+    const yr = (document.getElementById('hrow-year-' + i)?.value || '').trim();
+    const ps = parseFloat(document.getElementById('hrow-fcfps-' + i)?.value);
+    const fm = parseFloat(document.getElementById('hrow-fcfm-' + i)?.value);
+    if (yr && !isNaN(ps) && !isNaN(fm)) {
+      hist.push({ year: yr, fcfPS: ps, fcfM: fm, yoy: null });
+    }
+  }
+  for (let i = 1; i < hist.length; i++) {
+    hist[i].yoy = Math.round(((hist[i].fcfPS - hist[i-1].fcfPS) / hist[i-1].fcfPS) * 100);
+  }
+  if (hist.length === 0) { alert('Please enter at least one year of historical FCF data.'); return; }
+
+  const lastEntry = hist[hist.length - 1];
+  COMPANY = {
+    name, ticker, exchange, sector, currency, fy, hist,
+    sourceNote: 'Source: ' + name + ' annual reports. FCF = operating cash flow minus capital expenditure.',
+    defaults: {
+      fcf: lastEntry.fcfPS, price: 0, netcash: 0,
+      g1: 10, g2: 7, gt: 3, wacc: 10, mos: 20,
+      shares: parseFloat(document.getElementById('shares').value) || 0
+    }
+  };
+
+  updatePageFromCompany();
+  rebuildHistChart();
+  resetInputs();
+  document.getElementById('setup-section').nextElementSibling?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updatePageFromCompany() {
+  const C = COMPANY;
+  const cur = C.currency;
+  const yr1 = C.hist[0]?.year || '';
+  const yrN = C.hist[C.hist.length - 1]?.year || '';
+  const range = yr1 === yrN ? yr1 : yr1 + ' – ' + yrN;
+
+  document.getElementById('hdr-ticker').textContent = C.ticker + ' · ' + C.exchange.split('·')[0].trim();
+  document.getElementById('hdr-year').textContent = C.fy;
+  document.getElementById('hero-name').textContent = C.name;
+  document.getElementById('hero-sub').textContent =
+    'A two-phase DCF model using ' + C.name + "\'s real free cash flow history from " + range + '. Adjust assumptions and recalculate instantly.';
+  document.getElementById('badge-ticker').textContent = C.ticker;
+  document.getElementById('badge-text').textContent =
+    '·  ' + C.name + '  ·  ' + C.exchange + '  ·  ' + C.sector +
+    (C.defaults.shares > 0 ? '  ·  ~' + C.defaults.shares + 'M shares outstanding' : '');
+
+  document.getElementById('hist-chart-title').textContent = 'FCF per share & total FCF — ' + range;
+  document.querySelectorAll('.cur-label').forEach(el => el.textContent = cur);
+  document.getElementById('hist-source-note').textContent = C.sourceNote;
+
+  const fcfLabel = document.querySelector('label[for="fcf"]');
+  if (fcfLabel) fcfLabel.innerHTML = 'FCF per share — ' + yrN + ' (' + cur + ')';
+
+  document.getElementById('footer-data-note').textContent = 'Data: ' + C.name + ' annual reports ' + range;
+
+  const sc = document.getElementById('stat-cards');
+  sc.innerHTML = '';
+  C.hist.forEach(d => {
+    const bClass = d.yoy === null ? 'badge-neutral' : d.yoy >= 0 ? 'badge-up' : 'badge-down';
+    const bText  = d.yoy === null ? 'Base year' : (d.yoy >= 0 ? '+' : '') + d.yoy + '% YoY';
+    sc.innerHTML += '<div class="stat-card"><div class="stat-year">' + d.year + '</div>' +
+      '<div class="stat-row"><span class="stat-fcf">' + cur + d.fcfPS.toFixed(1) + '/sh</span>' +
+      '<span class="stat-total">' + cur + d.fcfM + 'M</span></div>' +
+      '<span class="stat-badge ' + bClass + '">' + bText + '</span></div>';
+  });
+}
+
+function rebuildHistChart() {
+  if (histChartInstance) { histChartInstance.destroy(); histChartInstance = null; }
+  const cur = COMPANY.currency;
+  histChartInstance = new Chart(document.getElementById('hist-chart'), {
+    type: 'bar',
+    data: {
+      labels: COMPANY.hist.map(d => d.year),
+      datasets: [
+        { label: 'FCF/share', data: COMPANY.hist.map(d => d.fcfPS),
+          backgroundColor: '#4a9eff', borderRadius: 4, borderSkipped: false, yAxisID: 'y' },
+        { label: 'Total FCF', data: COMPANY.hist.map(d => d.fcfM),
+          type: 'line', borderColor: '#2dd4a0', backgroundColor: 'transparent',
+          borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#2dd4a0', tension: 0.35, yAxisID: 'y2' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1f242d', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+        callbacks: { label: ctx => ctx.datasetIndex === 0 ? cur + ctx.parsed.y.toFixed(1) + '/share' : cur + ctx.parsed.y + 'M total' }
+      }},
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#555d6e', font: { family: "'DM Mono'", size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#555d6e', callback: v => cur + v, font: { size: 11 } } },
+        y2: { position: 'right', grid: { display: false }, ticks: { color: '#555d6e', callback: v => cur + v + 'M', font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+function calculate() {
+  const cur     = COMPANY.currency;
+  const fcf     = parseFloat(document.getElementById('fcf').value);
+  const price   = parseFloat(document.getElementById('price').value);
+  const netcash = parseFloat(document.getElementById('netcash').value) || 0;
+  const g1      = parseFloat(document.getElementById('g1').value) / 100;
+  const g2      = parseFloat(document.getElementById('g2').value) / 100;
+  const gt      = parseFloat(document.getElementById('gt').value) / 100;
+  const wacc    = parseFloat(document.getElementById('wacc').value) / 100;
+  const mos     = parseFloat(document.getElementById('mos').value);
+  const shares  = parseFloat(document.getElementById('shares').value) || 0;
+
+  if ([fcf, price, g1, g2, gt, wacc].some(isNaN)) { alert('Please fill in all required fields.'); return; }
+  if (wacc <= gt) { alert('Discount rate must exceed terminal growth rate.'); return; }
+
+  const rows = [];
+  let cf = fcf, pv1 = 0, pv2 = 0;
+  const labels = [], projVals = [], pvVals = [];
+
+  for (let i = 1; i <= 10; i++) {
+    cf = cf * (1 + (i <= 5 ? g1 : g2));
+    const pv = cf / Math.pow(1 + wacc, i);
+    if (i <= 5) pv1 += pv; else pv2 += pv;
+    rows.push({ yr: i, phase: i <= 5 ? 1 : 2, fcf: cf, pv, cum: pv1 + pv2 });
+    labels.push('Yr ' + i);
+    projVals.push(parseFloat(cf.toFixed(2)));
+    pvVals.push(parseFloat(pv.toFixed(2)));
+  }
+
+  const termCF   = cf * (1 + gt);
+  const tvRaw    = termCF / (wacc - gt);
+  const tvPV     = tvRaw / Math.pow(1 + wacc, 10);
+  labels.push('Terminal');
+  projVals.push(parseFloat(termCF.toFixed(2)));
+  pvVals.push(parseFloat(tvPV.toFixed(2)));
+
+  const dcfPV     = pv1 + pv2 + tvPV;
+  const intrinsic = dcfPV + netcash;
+  const buyAt     = intrinsic * (1 - mos / 100);
+  const upside    = ((intrinsic - price) / price) * 100;
+  const mktCap    = shares > 0 ? (price * shares).toFixed(1) : '—';
+  const ivCap     = shares > 0 ? (intrinsic * shares).toFixed(1) : '—';
+
+  let vClass = 'down', verdict = 'Overvalued',
+      vCaption = 'Stock trades at ' + Math.abs(upside).toFixed(1) + '% premium to intrinsic value';
+  if (price <= buyAt)         { vClass = 'up';   verdict = 'Buy — good margin of safety';
+    vCaption = 'Stock trades at ' + Math.abs(upside).toFixed(1) + '% discount with sufficient margin of safety'; }
+  else if (price <= intrinsic) { vClass = 'warn'; verdict = 'Fairly valued';
+    vCaption = 'Stock is near intrinsic value but below desired margin of safety'; }
+
+  document.getElementById('result-cards').innerHTML =
+    '<div class="result-card animate-in"><div class="result-label">Intrinsic value</div><div class="result-value highlight">' + cur + fmt(intrinsic) + '</div><div class="result-sub">Per share incl. net cash</div></div>' +
+    '<div class="result-card animate-in"><div class="result-label">Buy at (' + mos + '% MoS)</div><div class="result-value">' + cur + fmt(buyAt) + '</div><div class="result-sub">Price for required safety</div></div>' +
+    '<div class="result-card animate-in"><div class="result-label">Upside / downside</div><div class="result-value">' + cur + fmt(price) + '</div><div class="result-sub ' + vClass + '">' + (upside >= 0 ? '+' : '') + upside.toFixed(1) + '% vs intrinsic</div></div>' +
+    '<div class="result-card animate-in"><div class="result-label">IV market cap</div><div class="result-value">' + (ivCap !== '—' ? cur + ivCap + 'B' : '—') + '</div><div class="result-sub">vs mkt cap ' + (mktCap !== '—' ? cur + mktCap + 'B' : '—') + '</div></div>';
+
+  const barMax = Math.max(intrinsic * 1.6, price * 1.1);
+  const barW = Math.min(96, Math.max(3, Math.round((price / barMax) * 100)));
+  document.getElementById('progress-fill').style.width = barW + '%';
+  document.getElementById('progress-fill').style.background = vClass === 'up' ? '#2dd4a0' : vClass === 'warn' ? '#ffb547' : '#ff5e5e';
+  document.getElementById('verdict-caption').textContent = vCaption;
+  const vb = document.getElementById('verdict-badge');
+  vb.textContent = verdict; vb.className = 'verdict-badge ' + vClass;
+  document.getElementById('price-markers').innerHTML =
+    '<span>' + cur + '0</span><span>Buy at ' + cur + fmt(buyAt,0) + '</span><span>Intrinsic ' + cur + fmt(intrinsic,0) + '</span><span>' + cur + fmt(barMax,0) + '</span>';
+
+  const p1share = (pv1 / intrinsic * 100).toFixed(0);
+  const p2share = (pv2 / intrinsic * 100).toFixed(0);
+  const tvShare = (tvPV / intrinsic * 100).toFixed(0);
+  const ncShare = (netcash / intrinsic * 100).toFixed(0);
+  document.getElementById('breakdown-items').innerHTML =
+    '<div class="breakdown-item"><span class="breakdown-item-label">Phase 1 PV (yr 1–5)</span><span class="breakdown-item-val">' + cur + fmt(pv1) + ' <span style="color:var(--text3);font-size:11px">' + p1share + '%</span></span></div>' +
+    '<div class="breakdown-item"><span class="breakdown-item-label">Phase 2 PV (yr 6–10)</span><span class="breakdown-item-val">' + cur + fmt(pv2) + ' <span style="color:var(--text3);font-size:11px">' + p2share + '%</span></span></div>' +
+    '<div class="breakdown-item"><span class="breakdown-item-label">Terminal value PV</span><span class="breakdown-item-val">' + cur + fmt(tvPV) + ' <span style="color:var(--text3);font-size:11px">' + tvShare + '%</span></span></div>' +
+    '<div class="breakdown-item"><span class="breakdown-item-label">Net cash add-back</span><span class="breakdown-item-val">' + cur + fmt(netcash) + ' <span style="color:var(--text3);font-size:11px">' + ncShare + '%</span></span></div>' +
+    '<div class="breakdown-item"><span class="breakdown-item-label">Intrinsic value</span><span class="breakdown-item-val accent">' + cur + fmt(intrinsic) + '</span></div>';
+  document.getElementById('breakdown-bar').innerHTML =
+    '<div class="bb-seg" style="width:' + p1share + '%;background:#4a9eff"></div>' +
+    '<div class="bb-seg" style="width:' + p2share + '%;background:#2dd4a0"></div>' +
+    '<div class="bb-seg" style="width:' + tvShare + '%;background:#555d6e"></div>' +
+    '<div class="bb-seg" style="width:' + ncShare + '%;background:#c8f55a"></div>';
+
+  if (projChart) { projChart.destroy(); projChart = null; }
+  projChart = new Chart(document.getElementById('proj-chart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'FCF/share', data: projVals,
+          backgroundColor: projVals.map((_,i) => i<5?'#4a9eff':i<10?'#2dd4a0':'#555d6e'),
+          borderRadius: 4, borderSkipped: false, yAxisID: 'y', order: 2 },
+        { label: 'PV of FCF', data: pvVals,
+          type: 'line', borderColor: 'rgba(200,245,90,0.7)', backgroundColor: 'rgba(200,245,90,0.05)',
+          borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#c8f55a', tension: 0.3, yAxisID: 'y', order: 1 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1f242d', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+        callbacks: { label: ctx => cur + fmt(ctx.parsed.y) } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#555d6e', autoSkip: false, font: { size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#555d6e', callback: v => cur + v.toFixed(0), font: { size: 11 } } }
+      }
+    }
+  });
+
+  let th = '<thead><tr><th>Year</th><th>Phase</th><th>FCF/share (' + cur + ')</th><th>Discount factor</th><th>PV of FCF (' + cur + ')</th><th>Cumulative PV (' + cur + ')</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    const disc = 1 / Math.pow(1 + wacc, r.yr);
+    th += '<tr class="phase' + r.phase + '"><td>Year ' + r.yr + '</td><td>Phase ' + r.phase + '</td><td>' + cur + fmt(r.fcf) + '</td><td>' + fmt(disc,4) + '</td><td>' + cur + fmt(r.pv) + '</td><td>' + cur + fmt(r.cum) + '</td></tr>';
+  });
+  th += '<tr class="terminal-row"><td>Terminal year FCF</td><td>—</td><td>' + cur + fmt(termCF) + '</td><td>' + fmt(1/Math.pow(1+wacc,10),4) + '</td><td>' + cur + fmt(tvPV) + '</td><td>—</td></tr>';
+  th += '<tr class="total-row"><td>DCF equity value</td><td></td><td></td><td></td><td></td><td>' + cur + fmt(dcfPV) + '</td></tr>';
+  th += '<tr class="total-row"><td>+ Net cash per share</td><td></td><td></td><td></td><td></td><td>' + cur + fmt(netcash) + '</td></tr>';
+  th += '<tr class="total-row"><td>Intrinsic value per share</td><td></td><td></td><td></td><td></td><td>' + cur + fmt(intrinsic) + '</td></tr></tbody>';
+  document.getElementById('dcf-table').innerHTML = th;
+
+  const g1Val   = parseFloat(document.getElementById('g1').value);
+  const waccVal = parseFloat(document.getElementById('wacc').value);
+  const g1Range   = [g1Val-6, g1Val-3, g1Val, g1Val+3, g1Val+6];
+  const waccRange = [waccVal-2, waccVal-1, waccVal, waccVal+1, waccVal+2];
+  let st = '<thead><tr><th>g1 \ WACC</th>';
+  waccRange.forEach(w => { st += '<th>' + w.toFixed(1) + '%</th>'; });
+  st += '</tr></thead><tbody>';
+  g1Range.forEach(g => {
+    st += '<tr><td>' + g.toFixed(1) + '% growth</td>';
+    waccRange.forEach(w => {
+      let cf2 = fcf, pv1t = 0, pv2t = 0;
+      for (let i = 1; i <= 10; i++) {
+        cf2 = cf2 * (1 + (i <= 5 ? g/100 : g2));
+        const pv = cf2 / Math.pow(1 + w/100, i);
+        if (i <= 5) pv1t += pv; else pv2t += pv;
+      }
+      const iv = pv1t + pv2t + cf2*(1+gt)/(w/100-gt)/Math.pow(1+w/100,10) + netcash;
+      const isCurrentCell = Math.abs(g-g1Val)<0.01 && Math.abs(w-waccVal)<0.01;
+      const diff = (iv - price) / price * 100;
+      const cls = isCurrentCell ? 'cell-current' : diff>=10 ? 'cell-up' : diff<=-10 ? 'cell-down' : '';
+      st += '<td class="' + cls + '">' + cur + fmt(iv,0) + '</td>';
+    });
+    st += '</tr>';
+  });
+  st += '</tbody>';
+  document.getElementById('sens-table').innerHTML = st;
+
+  const el = document.getElementById('results');
+  el.classList.add('visible');
+
+  const stateKey  = vClass === 'up' ? 'undervalued' : vClass === 'warn' ? 'fair' : 'overvalued';
+  const indIcons  = { undervalued: '↓', fair: '≈', overvalued: '↑' };
+  const indLabels = { undervalued: 'Undervalued', fair: 'Fairly valued', overvalued: 'Overvalued' };
+  const indSubs   = {
+    undervalued: 'Stock is trading below intrinsic value with a sufficient margin of safety',
+    fair:        'Stock is near intrinsic value — limited margin of safety at current price',
+    overvalued:  'Stock trades above estimated intrinsic value based on current assumptions'
+  };
+  const indDetails = {
+    undervalued: 'Trading ' + Math.abs(upside).toFixed(1) + '% below intrinsic value — within buy range with ' + mos + '% margin of safety applied',
+    fair:        'Trading near intrinsic value — monitor for a better entry below ' + cur + fmt(buyAt,0),
+    overvalued:  'Trading ' + Math.abs(upside).toFixed(1) + '% above intrinsic value — market pricing in more growth than modelled'
+  };
+  const upsideStr = (upside >= 0 ? '+' : '') + upside.toFixed(1) + '%';
+  const fcfYield  = (fcf / price * 100).toFixed(1);
+  const pFCF      = (price / fcf).toFixed(1);
+
+  const bannerInner = document.getElementById('val-banner-inner');
+  bannerInner.className = 'val-indicator-inner state-' + stateKey;
+  document.getElementById('val-banner-icon').textContent  = indIcons[stateKey];
+  document.getElementById('val-banner-label').textContent = indLabels[stateKey];
+  document.getElementById('val-banner-sub').textContent   = indSubs[stateKey];
+  document.getElementById('val-banner-iv').textContent    = cur + fmt(intrinsic,0);
+  document.getElementById('val-banner-price').textContent = cur + fmt(price,0);
+  document.getElementById('val-banner-buy').textContent   = cur + fmt(buyAt,0);
+  document.getElementById('val-banner-pct').textContent   = upsideStr;
+  document.getElementById('val-banner').classList.add('visible');
+
+  const pill = document.getElementById('hero-val-pill');
+  pill.className = 'hero-val-pill visible hvp-state-' + stateKey;
+  document.getElementById('hvp-icon').textContent   = indIcons[stateKey];
+  document.getElementById('hvp-title').textContent  = indLabels[stateKey] + ' — ' + upsideStr + ' vs intrinsic';
+  document.getElementById('hvp-detail').textContent = indDetails[stateKey];
+  document.getElementById('hvp-upside').textContent = upsideStr;
+  document.getElementById('hvp-yield').textContent  = fcfYield + '%';
+  document.getElementById('hvp-pfcf').textContent   = pFCF + '×';
+
+  setTimeout(() => { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+}
+
+function resetInputs() {
+  const d = COMPANY.defaults;
+  Object.entries(d).forEach(([k, v]) => { const el = document.getElementById(k); if (el) el.value = v; });
+}
+
+function filterDefs(cat, btn) {
+  document.querySelectorAll('.def-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.def-card').forEach(card => {
+    card.classList.toggle('def-hidden', cat !== 'all' && card.dataset.cat !== cat);
+  });
+}
+
+// ── FMP DATA FETCH ───────────────────────────────────────────────────────────
+function setFetchStatus(type, msg) {
+  const el = document.getElementById('fetch-status');
+  el.className = 'fetch-status ' + type;
+  el.innerHTML = msg;
+}
+
+async function fetchFMPData() {
+  const ticker  = document.getElementById('fetch-ticker').value.trim().toUpperCase();
+  const apiKey  = document.getElementById('fetch-apikey').value.trim();
+  const currency= document.getElementById('fetch-currency').value.trim() || '$';
+
+  if (!ticker)  { setFetchStatus('error', 'Please enter a ticker symbol.'); return; }
+  if (!apiKey)  { setFetchStatus('error', 'Please enter your FMP API key. Get one free at financialmodelingprep.com'); return; }
+
+  // Save key to localStorage
+  try { localStorage.setItem('fmp_api_key', apiKey); } catch(e) {}
+
+  const btn = document.getElementById('fetch-btn');
+  btn.disabled = true;
+  btn.textContent = 'Fetching...';
+  setFetchStatus('loading', 'Connecting to Financial Modeling Prep API...');
+
+  const BASE = 'https://financialmodelingprep.com/api/v3';
+
+  try {
+    // 1 — Company profile (name, exchange, sector, price, shares, description)
+    setFetchStatus('loading', '[1] Fetching company profile...');
+    const profileRes = await fetch(BASE + '/profile/' + ticker + '?apikey=' + apiKey);
+    const profileData = await profileRes.json();
+
+    if (!profileData || profileData.length === 0 || profileData['Error Message']) {
+      throw new Error(profileData?.['Error Message'] || 'Ticker not found. Check the symbol and your API key.');
+    }
+    const profile = profileData[0];
+
+    // 2 — Cash flow statement (last 6 annual)
+    setFetchStatus('loading', '[2] Fetching 6 years of cash flow data...');
+    const cfRes  = await fetch(BASE + '/cash-flow-statement/' + ticker + '?period=annual&limit=6&apikey=' + apiKey);
+    const cfData = await cfRes.json();
+
+    if (!cfData || cfData.length === 0) {
+      throw new Error('No cash flow data found for ' + ticker + '. The company may not have enough history or may not be on FMP free tier.');
+    }
+
+    // 3 — Balance sheet for net debt (latest)
+    setFetchStatus('loading', '[3] Fetching balance sheet for net debt...');
+    const bsRes  = await fetch(BASE + '/balance-sheet-statement/' + ticker + '?period=annual&limit=1&apikey=' + apiKey);
+    const bsData = await bsRes.json();
+    const bs = bsData?.[0] || {};
+    const totalDebt = (bs.shortTermDebt || 0) + (bs.longTermDebt || 0);
+    const cash      = bs.cashAndCashEquivalents || bs.cashAndShortTermInvestments || 0;
+    const netDebt   = totalDebt - cash;
+    const sharesForNetDebt = profile.sharesOutstanding || 1;
+    const netCashPS = -1 * (netDebt / sharesForNetDebt); // negative = net debt, positive = net cash
+
+    // Build hist array — oldest first
+    const histRaw = [...cfData].reverse();
+    const hist = histRaw.map((row, i) => {
+      const fcfM  = Math.round((row.freeCashFlow || 0) / 1e6);
+      const sharesY = row.weightedAverageShsOutDil || profile.sharesOutstanding || 1;
+      const fcfPS = parseFloat(((row.freeCashFlow || 0) / sharesY).toFixed(2));
+      const prevPS = i > 0 ? histRaw[i-1].freeCashFlow / (histRaw[i-1].weightedAverageShsOutDil || sharesY) : null;
+      const yoy = prevPS !== null && prevPS !== 0 ? Math.round(((row.freeCashFlow / (row.weightedAverageShsOutDil || sharesY)) - prevPS) / Math.abs(prevPS) * 100) : null;
+      const yearLabel = (row.calendarYear || row.date?.slice(0,4) || '');
+      return { year: yearLabel, fcfM, fcfPS, yoy };
+    });
+
+    const lastEntry   = hist[hist.length - 1];
+    const sharesOutM  = Math.round((profile.sharesOutstanding || 0) / 1e6 * 100) / 100;
+    const exchangeStr = (profile.exchangeShortName || profile.exchange || '') + ' · ' + (profile.city || profile.country || '');
+    const fyLabel     = 'FY ' + (lastEntry.year || new Date().getFullYear() - 1);
+
+    // Build new COMPANY object
+    COMPANY = {
+      name:       profile.companyName || ticker,
+      ticker:     ticker,
+      exchange:   exchangeStr,
+      sector:     profile.sector || profile.industry || '—',
+      currency:   currency,
+      fy:         fyLabel,
+      hist,
+      sourceNote: 'Source: Financial Modeling Prep API · ' + ticker + ' annual filings. FCF = operating cash flow minus capex.',
+      defaults: {
+        fcf:      lastEntry.fcfPS,
+        price:    parseFloat((profile.price || 0).toFixed(2)),
+        netcash:  parseFloat(netCashPS.toFixed(2)),
+        g1:       10, g2: 7, gt: 3, wacc: 10, mos: 20,
+        shares:   sharesOutM
+      }
+    };
+
+    // Fill manual setup fields too
+    document.getElementById('cfg-name').value     = COMPANY.name;
+    document.getElementById('cfg-ticker').value   = COMPANY.ticker;
+    document.getElementById('cfg-exchange').value = COMPANY.exchange;
+    document.getElementById('cfg-sector').value   = COMPANY.sector;
+    document.getElementById('cfg-currency').value = COMPANY.currency;
+    document.getElementById('cfg-fy').value       = COMPANY.fy;
+
+    // Fill hist input rows
+    COMPANY.hist.forEach((d, i) => {
+      const yr = document.getElementById('hrow-year-' + i);
+      const ps = document.getElementById('hrow-fcfps-' + i);
+      const fm = document.getElementById('hrow-fcfm-' + i);
+      if (yr) yr.value = d.year;
+      if (ps) ps.value = d.fcfPS;
+      if (fm) fm.value = d.fcfM;
+    });
+
+    // Apply to model
+    updatePageFromCompany();
+    rebuildHistChart();
+    resetInputs();
+
+    const sign = netCashPS >= 0 ? '+' : '';
+    setFetchStatus('success',
+      '&#10003; <strong>' + COMPANY.name + '</strong> loaded — ' + hist.length + ' years of FCF history pulled. ' +
+      'Current price: ' + currency + profile.price?.toFixed(2) + ' · ' +
+      'Shares: ' + sharesOutM + 'M · ' +
+      'Net cash/share: ' + currency + sign + parseFloat(netCashPS.toFixed(2)) + '. ' +
+      'Review the model assumptions below, then click Calculate.'
+    );
+
+    // Scroll to model assumptions
+    setTimeout(() => {
+      document.getElementById('setup-section')?.nextElementSibling?.nextElementSibling?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 600);
+
+  } catch(err) {
+    setFetchStatus('error', '&#10007; ' + (err.message || 'Unknown error. Check your API key and ticker symbol.'));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Fetch data ->';
+  }
+}
+
+window.addEventListener('load', () => {
+  buildHistInputRows();
+  // Restore saved API key
+  try {
+    const savedKey = localStorage.getItem('fmp_api_key');
+    if (savedKey) {
+      document.getElementById('fetch-apikey').value = savedKey;
+      const badge = document.getElementById('key-saved-badge');
+      if (badge) { badge.classList.add('visible'); }
+    }
+  } catch(e) {}
+  prefillSetup();
+  updatePageFromCompany();
+  rebuildHistChart();
+  setTimeout(calculate, 300);
+});
+</script>
+</body>
+</html>
