@@ -135,7 +135,7 @@ input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 
 .gauge-pin { position: absolute; top: -5px; width: 2px; height: 16px; background: var(--text0); border-radius: 1px; transform: translateX(-50%); }
 
 /* Stat cards */
-.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 28px; }
+.stats-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-bottom: 28px; }
 .scard { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 16px 18px; }
 .scard .lbl { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--text2); margin-bottom: 8px; }
 .scard .val { font-family: var(--serif); font-size: 26px; color: var(--text0); line-height: 1; }
@@ -168,10 +168,11 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
 #disclaimer { border-top: 1px solid var(--border); padding-top: 24px; margin-top: 48px; font-size: 11px; color: var(--text2); line-height: 1.8; }
 
 .hidden { display: none !important; }
+:root { --accent: #f0a500; }
 
 @media(max-width:860px){
   .ass-grid{grid-template-columns:repeat(2,1fr);}
-  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .stats-grid{grid-template-columns:repeat(3,1fr);}
   .two-col{grid-template-columns:1fr;}
   .field-grid{grid-template-columns:1fr 1fr;}
   #page{padding:48px 20px 80px;}
@@ -255,51 +256,58 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
   <section class="section hidden" id="sec-ass">
     <div class="section-header"><span class="section-sq"></span><span class="section-title">DCF assumptions</span></div>
     <hr class="section-rule"/>
-    <p class="section-desc" id="ass-desc">Adjust the model assumptions below. Figures are prefilled from Massive financial statements where available.</p>
+    <p class="section-desc" id="ass-desc">Adjust the model assumptions below. Figures are prefilled from financial statements where available.</p>
 
     <div class="panel">
+      <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);margin-bottom:16px;">Owner Earnings &amp; Growth</div>
       <div class="ass-grid">
         <div class="a-item">
-          <label>Base FCF (M USD) <span id="fcf-src" class="tag hidden">from Massive</span></label>
+          <label>Owner Earnings (M USD) <span id="fcf-src" class="tag hidden">from API</span></label>
           <input type="number" id="i-fcf" step="1"/>
-          <span class="hint">Free Cash Flow = Operating CF − CapEx</span>
+          <span class="hint">Buffett: Net Income + D&amp;A − maintenance CapEx. FCF is a good proxy.</span>
         </div>
         <div class="a-item">
           <label>Growth Rate Y1–5 (%)</label>
-          <input type="range" id="s-g1" min="-20" max="60" step="0.5" oninput="ss('g1')"/>
+          <input type="range" id="s-g1" min="-20" max="50" step="0.5" oninput="ss('g1')"/>
           <input type="number" id="i-g1" step="0.5" oninput="si('g1')"/>
-          <span class="hint">Near-term FCF CAGR estimate</span>
+          <span class="hint">Be conservative. Buffett prefers predictable, consistent growth.</span>
         </div>
         <div class="a-item">
           <label>Growth Rate Y6–10 (%)</label>
-          <input type="range" id="s-g2" min="-10" max="40" step="0.5" oninput="ss('g2')"/>
+          <input type="range" id="s-g2" min="-10" max="30" step="0.5" oninput="ss('g2')"/>
           <input type="number" id="i-g2" step="0.5" oninput="si('g2')"/>
-          <span class="hint">Mid-term growth, typically lower</span>
+          <span class="hint">Should be lower than Y1–5. Regression to mean.</span>
         </div>
         <div class="a-item">
           <label>Terminal Growth Rate (%)</label>
-          <input type="range" id="s-tg" min="0" max="5" step="0.1" oninput="ss('tg')"/>
+          <input type="range" id="s-tg" min="0" max="4" step="0.1" oninput="ss('tg')"/>
           <input type="number" id="i-tg" step="0.1" oninput="si('tg')"/>
-          <span class="hint">Perpetual growth — typically 2–3%</span>
+          <span class="hint">Buffett uses long-run GDP rate (~2.5%). Never exceed inflation.</span>
         </div>
         <div class="a-item">
-          <label>Discount Rate / WACC (%)</label>
-          <input type="range" id="s-wacc" min="4" max="25" step="0.1" oninput="ss('wacc')"/>
+          <label>Discount Rate (%) <span id="treasury-badge" style="background:var(--lime-dim);border:1px solid rgba(200,241,53,.25);color:var(--lime);font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:3px;margin-left:6px;"></span></label>
+          <input type="range" id="s-wacc" min="4" max="20" step="0.1" oninput="ss('wacc')"/>
           <input type="number" id="i-wacc" step="0.1" oninput="si('wacc')"/>
-          <span class="hint">Weighted average cost of capital</span>
+          <span class="hint">Buffett uses 30Y Treasury as yardstick + small risk premium. Never WACC.</span>
         </div>
         <div class="a-item">
           <label>Shares Outstanding (M)</label>
           <input type="number" id="i-shares" step="1"/>
-          <span class="hint">Prefilled from Massive ticker details</span>
+          <span class="hint">Prefilled from ticker details</span>
         </div>
       </div>
       <div class="divider-lbl">Enterprise bridge</div>
-      <div style="max-width:360px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
         <div class="a-item">
           <label>Net Debt (M USD)</label>
           <input type="number" id="i-debt" step="1"/>
-          <span class="hint">Total debt minus cash — prefilled from balance sheet</span>
+          <span class="hint">Total debt minus cash</span>
+        </div>
+        <div class="a-item">
+          <label>Margin of Safety (%) <span style="background:var(--lime-dim);border:1px solid rgba(200,241,53,.25);color:var(--lime);font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:3px;margin-left:6px;">Buffett</span></label>
+          <input type="range" id="s-mos" min="0" max="75" step="5" oninput="ss('mos')"/>
+          <input type="number" id="i-mos" step="5" oninput="si('mos')"/>
+          <span class="hint">Buffett requires 25–50% discount to intrinsic value before buying.</span>
         </div>
       </div>
       <div class="btn-row">
@@ -315,17 +323,30 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
     <hr class="section-rule"/>
 
     <div id="vblock" class="vblock f">
-      <div id="veyebrow" class="veyebrow f">Discounted Cash Flow</div>
+      <div id="veyebrow" class="veyebrow f">Discounted Cash Flow — Buffett Method</div>
       <div id="vhead" class="vh f"></div>
       <div id="vsub" class="vsub"></div>
-      <div class="gauge-wrap">
-        <div class="gauge-labels">
+
+      <!-- Three-price gauge -->
+      <div class="gauge-wrap" style="margin-top:20px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:8px;">
+          <span>Buy below: <b id="gl-buy" style="color:var(--text0)"></b></span>
           <span>Intrinsic value: <b id="gl-i" style="color:var(--text0)"></b></span>
           <span>Current price: <b id="gl-p" style="color:var(--text0)"></b></span>
         </div>
-        <div class="gauge-track">
+        <div id="gauge-track" style="height:8px;background:var(--bg3);border-radius:4px;border:1px solid var(--border2);position:relative;overflow:visible;">
           <div id="g-fill" class="gauge-fill"></div>
-          <div id="g-pin"  class="gauge-pin"></div>
+          <!-- Buy below marker (lime) -->
+          <div id="g-pin-buy" style="position:absolute;top:-5px;width:2px;height:18px;background:var(--lime);border-radius:1px;transform:translateX(-50%);"></div>
+          <!-- Intrinsic value marker (white) -->
+          <div id="g-pin" style="position:absolute;top:-5px;width:2px;height:18px;background:var(--text0);border-radius:1px;transform:translateX(-50%);"></div>
+          <!-- Current price pin -->
+          <div id="g-pin-price" style="position:absolute;top:-8px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid var(--accent, #f0a500);transform:translateX(-50%);"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-top:5px;">
+          <span>&#9650; Buy zone</span>
+          <span>Fair value</span>
+          <span>Overvalued &#9654;</span>
         </div>
       </div>
     </div>
@@ -351,10 +372,10 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
     <div class="panel" style="padding:20px 22px;">
       <div class="expand-row" id="sens-toggle" onclick="togSens()">
         <span class="arr">▶</span>
-        <span>Sensitivity analysis — WACC vs terminal growth rate</span>
+        <span>Sensitivity analysis — Discount rate vs terminal growth rate</span>
       </div>
       <div id="sens-inner" class="hidden" style="margin-top:16px;">
-        <p style="font-size:11px;color:var(--text2);margin-bottom:12px;">Intrinsic value per share across scenarios. Highlighted cell = your current inputs. Green = undervalued, red = overvalued vs current price.</p>
+        <p style="font-size:11px;color:var(--text2);margin-bottom:12px;">Intrinsic value/share across scenarios. Green = price below Buffett buy price (MoS applied), red = overvalued. Highlighted = current inputs.</p>
         <div class="tbl-wrap" id="sens-tbl"></div>
       </div>
     </div>
@@ -398,6 +419,32 @@ let FMP_KEY = localStorage.getItem('iv_fmp_key')     || '';
 // ── Proxy base URL ──
 const BASE = () => (localStorage.getItem('iv_proxy_url') || 'https://massive-proxy.folkert-brokking.workers.dev').replace(/\/+$/, '');
 
+// ── Fetch live US 10Y Treasury rate from FRED (no key needed) ──
+let TREASURY_RATE = 4.44; // fallback default (March 2026)
+(async () => {
+  try {
+    const r = await fetch('https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10', { cache: 'no-store' });
+    const csv = await r.text();
+    const lines = csv.trim().split('\n');
+    // Last non-empty line with a real value
+    for (let i = lines.length - 1; i >= 1; i--) {
+      const parts = lines[i].split(',');
+      const val = parseFloat(parts[1]);
+      if (!isNaN(val) && val > 0) {
+        TREASURY_RATE = val;
+        break;
+      }
+    }
+    const badge = document.getElementById('treasury-badge');
+    if (badge) badge.textContent = '10Y T: ' + TREASURY_RATE.toFixed(2) + '%';
+    console.log('Treasury rate loaded:', TREASURY_RATE + '%');
+  } catch(e) {
+    console.warn('Could not fetch Treasury rate, using fallback:', TREASURY_RATE);
+    const badge = document.getElementById('treasury-badge');
+    if (badge) badge.textContent = '10Y T: ~' + TREASURY_RATE.toFixed(2) + '%';
+  }
+})();
+
 // Show API status bar
 function renderApiStatus() {
   const massiveKey = localStorage.getItem('iv_massive_key') || '';
@@ -432,7 +479,11 @@ renderApiStatus();
 // ── Sliders ──
 function ss(k) { document.getElementById('i-'+k).value = parseFloat(document.getElementById('s-'+k).value).toFixed(1); }
 function si(k) { const v = parseFloat(document.getElementById('i-'+k).value); if (!isNaN(v)) document.getElementById('s-'+k).value = v; }
-function sl(k, v) { document.getElementById('s-'+k).value = v; document.getElementById('i-'+k).value = parseFloat(v).toFixed(1); }
+function sl(k, v, decimals) {
+  const d = decimals !== undefined ? decimals : (k === 'mos' ? 0 : 1);
+  document.getElementById('s-'+k).value = v;
+  document.getElementById('i-'+k).value = parseFloat(v).toFixed(d);
+}
 
 // ── Status ──
 function stat(t, m) {
@@ -711,12 +762,19 @@ function fillAss(d) {
   document.getElementById('i-debt').value   = d.netDebt ?? 0;
   console.log('DCF inputs — FCF (M):', d.fcf, '| Shares (M):', Math.round(d.sharesM), '| Net debt (M):', d.netDebt, '| Price:', d.price);
 
-  const g1 = Math.min(Math.max(isNaN(d.estG) ? 8 : d.estG, -20), 60);
-  const g2 = Math.min(Math.max(g1 * 0.6, -10), 40);
+  // Buffett-style defaults:
+  // - Growth capped at 20% (be conservative)
+  // - Discount rate = Treasury + 3% risk premium (Buffett's yardstick)
+  // - Terminal growth = 2.5% (long-run GDP)
+  // - Margin of safety = 30% default
+  const g1 = Math.min(Math.max(isNaN(d.estG) ? 8 : d.estG, -20), 20);
+  const g2 = Math.min(Math.max(g1 * 0.55, -10), 15);
+  const buffettRate = Math.max(7.0, parseFloat((TREASURY_RATE + 3.0).toFixed(1)));
   sl('g1', g1.toFixed(1));
   sl('g2', g2.toFixed(1));
   sl('tg',   '2.5');
-  sl('wacc', '10.0');
+  sl('wacc', buffettRate.toFixed(1));
+  sl('mos',  '30', 0);
 
   const srcEl = document.getElementById('fcf-src');
   if (d.fcfSource) { show('fcf-src'); } else { hide('fcf-src'); }
@@ -733,7 +791,7 @@ function fillAss(d) {
 
 function resetAss() {
   if (Object.keys(G).length) fillAss(G);
-  else { sl('g1','8.0'); sl('g2','4.8'); sl('tg','2.5'); sl('wacc','10.0'); }
+  else { const r = Math.max(7.0, parseFloat((TREASURY_RATE+3).toFixed(1))); sl('g1','8.0'); sl('g2','4.4'); sl('tg','2.5'); sl('wacc', r.toFixed(1)); sl('mos','30',0); }
 }
 
 // ── DCF model ──
@@ -745,6 +803,7 @@ function runDCF() {
   const wacc   = parseFloat(document.getElementById('i-wacc').value) / 100;
   const shares = parseFloat(document.getElementById('i-shares').value);
   const debt   = parseFloat(document.getElementById('i-debt').value) || 0;
+  const mos    = (parseFloat(document.getElementById('i-mos').value) || 0) / 100;
 
   if ([fcf, g1, g2, tg, wacc, shares].some(v => isNaN(v))) {
     stat('error', 'All assumption fields are required — enter a Base FCF value to proceed.'); return;
@@ -767,84 +826,110 @@ function runDCF() {
   const iv    = eq / shares;
   const cp    = G.price || 0;
 
-  renderRes({ rows, pvFCF, pvTV, ev, eq, iv, cp, debt, shares, wacc, tg, g1, g2, fcf });
-  buildSens(fcf, g1, g2, tg, wacc, shares, debt, cp);
+  renderRes({ rows, pvFCF, pvTV, ev, eq, iv, cp, debt, shares, wacc, tg, g1, g2, fcf, mos });
+  buildSens(fcf, g1, g2, tg, wacc, shares, debt, cp, mos);
   show('sec-results');
   document.getElementById('sec-results').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
-// ── Render results ──
+// ── Render results (Buffett Method) ──
 function renderRes(r) {
-  const { iv, cp, pvFCF, pvTV, ev, eq, rows, debt, shares, wacc, tg, g1, g2, fcf } = r;
-  const m = cp > 0 ? (iv - cp) / cp * 100 : 0;
-  const cls = m > 15 ? 'u' : m < -15 ? 'o' : 'f';
-  const col = { u: 'var(--green)', o: 'var(--red)', f: 'var(--lime)' };
+  const { iv, cp, pvFCF, pvTV, ev, eq, rows, debt, shares, wacc, tg, g1, g2, fcf, mos } = r;
+  const buyBelow   = iv * (1 - mos);
+  const mosApplied = mos > 0;
+  const pct        = cp > 0 ? (iv - cp) / cp * 100 : 0;
+  const col        = { u: 'var(--green)', o: 'var(--red)', f: 'var(--lime)' };
 
-  // Verdict
-  document.getElementById('vblock').className = 'vblock ' + cls;
+  let cls, subtext;
+  if (cp > 0 && cp <= buyBelow) {
+    cls     = 'u';
+    subtext = `At $${f2(cp)}, trading well below intrinsic value of $${f2(iv)}.` +
+      (mosApplied ? ` Your Buffett buy price with ${Math.round(mos*100)}% margin of safety is $${f2(buyBelow)} — this hits you over the head.` : ``);
+  } else if (cp > 0 && cp <= iv * 1.05) {
+    cls     = 'f';
+    subtext = `At $${f2(cp)}, near intrinsic value of $${f2(iv)}.` +
+      (mosApplied ? ` Still above your Buffett buy price of $${f2(buyBelow)} (${Math.round(mos*100)}% MoS). Buffett would wait.` : ``);
+  } else {
+    cls     = 'o';
+    subtext = `At $${f2(cp)}, trading above intrinsic value of $${f2(iv)}.` +
+      (mosApplied ? ` Buffett buy price with ${Math.round(mos*100)}% MoS: $${f2(buyBelow)}.` : ``);
+  }
+
+  document.getElementById('vblock').className  = 'vblock ' + cls;
   const ve = document.getElementById('veyebrow');
-  ve.className = 'veyebrow ' + cls;
-  ve.textContent = `Discounted Cash Flow — ${G.ticker || ''}`;
+  ve.className  = 'veyebrow ' + cls;
+  ve.textContent = `DCF — Buffett Method — ${G.ticker || ''}`;
   const vh = document.getElementById('vhead');
-  vh.className = 'vh ' + cls;
-  vh.innerHTML = m > 15
-    ? `${esc(G.name)} appears <em>undervalued</em> by ${f1(m)}%`
-    : m < -15
-    ? `${esc(G.name)} appears <em>overvalued</em> by ${f1(Math.abs(m))}%`
-    : `${esc(G.name)} appears <em>fairly valued</em>`;
-  document.getElementById('vsub').textContent = m > 15
-    ? `Intrinsic value $${f2(iv)}/share vs current price $${f2(cp)} — the stock may be trading at a ${f1(m)}% discount.`
-    : m < -15
-    ? `Intrinsic value $${f2(iv)}/share vs current price $${f2(cp)} — the stock may be trading at a ${f1(Math.abs(m))}% premium.`
-    : `Intrinsic value $${f2(iv)}/share vs current price $${f2(cp)} — within ±15% of the intrinsic value estimate.`;
+  vh.className  = 'vh ' + cls;
+  vh.innerHTML  = cls === 'u'
+    ? `${esc(G.name)} appears <em>undervalued</em> by ${f1(pct)}%`
+    : cls === 'o'
+    ? `${esc(G.name)} appears <em>overvalued</em> by ${f1(Math.abs(pct))}%`
+    : `${esc(G.name)} is <em>fairly valued</em>`;
+  document.getElementById('vsub').textContent = subtext;
 
-  // Gauge
-  document.getElementById('gl-i').textContent = '$' + f2(iv);
-  document.getElementById('gl-p').textContent = '$' + f2(cp);
-  const lo = Math.min(iv, cp) * .85, hi = Math.max(iv, cp) * 1.15, rng = (hi - lo) || 1;
-  document.getElementById('g-fill').style.cssText = `width:${Math.min(100,Math.max(0,(iv-lo)/rng*100))}%;background:${col[cls]};`;
-  document.getElementById('g-pin').style.left = Math.min(100, Math.max(0, (cp - lo) / rng * 100)) + '%';
+  // Three-point gauge: buy below | intrinsic | current price
+  document.getElementById('gl-buy').textContent = '$' + f2(buyBelow);
+  document.getElementById('gl-i').textContent   = '$' + f2(iv);
+  document.getElementById('gl-p').textContent   = '$' + f2(cp);
 
-  // Stat cards
+  const lo  = Math.min(buyBelow, cp, iv) * 0.80;
+  const hi  = Math.max(buyBelow, cp, iv) * 1.20;
+  const rng = (hi - lo) || 1;
+  const ppos = v => Math.min(97, Math.max(3, (v - lo) / rng * 100));
+
+  document.getElementById('g-fill').style.cssText = `width:${ppos(iv)}%;background:${col[cls]};`;
+  const pinBuy = document.getElementById('g-pin-buy');
+  if (pinBuy) pinBuy.style.left = ppos(buyBelow) + '%';
+  document.getElementById('g-pin').style.left = ppos(iv) + '%';
+  const pinPrice = document.getElementById('g-pin-price');
+  if (pinPrice) pinPrice.style.left = ppos(cp) + '%';
+
+  // 5 stat cards
+  document.getElementById('stat-grid').style.gridTemplateColumns = 'repeat(5,1fr)';
   document.getElementById('stat-grid').innerHTML = [
-    { lbl:'Intrinsic value',   val:'$'+f2(iv),                          sub:'per share (DCF)' },
-    { lbl:'Current price',     val:'$'+f2(cp),                          sub:'from Massive snapshot' },
-    { lbl:'Upside / downside', val:`${m>=0?'+':''}${f1(m)}%`,           sub:'vs intrinsic value', c:col[cls] },
-    { lbl:'Enterprise value',  val:fB(ev),                          sub:'PV FCF + terminal' },
+    { lbl:'Intrinsic value',   val:'$'+f2(iv),         sub:'per share (owner earnings DCF)' },
+    { lbl:'Buy below',         val:'$'+f2(buyBelow),   sub:`${Math.round(mos*100)}% margin of safety`, c:'var(--lime)' },
+    { lbl:'Current price',     val:'$'+f2(cp),         sub:'live from Massive' },
+    { lbl:'Upside / downside', val:`${pct>=0?'+':''}${f1(pct)}%`, sub:'price vs intrinsic', c:col[cls] },
+    { lbl:'Enterprise value',  val:fB(ev),             sub:'PV owner earnings + terminal' },
   ].map(t => `<div class="scard"><div class="lbl">${t.lbl}</div><div class="val"${t.c?` style="color:${t.c}"`:''}>${t.val}</div><div class="sub">${t.sub}</div></div>`).join('');
 
-  // FCF table
+  // FCF projection table
   document.getElementById('proj-body').innerHTML =
     rows.map(row =>
       `<tr><td>Y${row.y}</td><td>${fM(row.fcf)}</td><td>${row.df.toFixed(4)}</td><td>${fM(row.pv)}</td></tr>`
     ).join('') +
-    `<tr class="tr-total"><td>Sum PV FCFs</td><td colspan="2"></td><td>${fM(pvFCF)}</td></tr>`;
+    `<tr class="tr-total"><td>Sum PV owner earnings</td><td colspan="2"></td><td>${fM(pvFCF)}</td></tr>`;
 
   // Breakdown
-  const tp = (pvTV / ev * 100).toFixed(1), fp = (pvFCF / ev * 100).toFixed(1);
+  const tp = (pvTV/ev*100).toFixed(1), fp = (pvFCF/ev*100).toFixed(1);
   document.getElementById('bkdn-body').innerHTML = [
-    ['PV of FCF (Y1–10)',      fM(pvFCF), fp+'% of EV', false],
-    ['PV of terminal value',   fM(pvTV),  tp+'% of EV', false],
-    ['Enterprise value',       fM(ev),    '',           false],
-    ['Less: net debt',         fM(debt),  '',           false],
-    ['Equity value',           fM(eq),    '',           false],
-    ['Shares outstanding',     Math.round(shares).toLocaleString()+'M', '', false],
-    ['Intrinsic value / share','$'+f2(iv),'← key output', true],
+    ['PV of owner earnings (Y1–10)', fM(pvFCF), fp+'% of EV', false],
+    ['PV of terminal value',         fM(pvTV),  tp+'% of EV', false],
+    ['Enterprise value',             fM(ev),    '',           false],
+    ['Less: net debt',               fM(debt),  '',           false],
+    ['Equity value',                 fM(eq),    '',           false],
+    ['Shares outstanding',           Math.round(shares).toLocaleString()+'M', '', false],
+    ['Intrinsic value / share',      '$'+f2(iv),'← DCF result', true],
+    ['Buy below ('+Math.round(mos*100)+'% MoS)', '$'+f2(buyBelow), '← Buffett buy price', true],
   ].map(([a,b,c,k]) =>
     `<tr class="${k?'tr-key':''}"><td>${a}</td><td>${b}</td><td style="color:var(--text2);font-size:11px;">${c}</td></tr>`
   ).join('');
 
   document.getElementById('inp-body').innerHTML = [
-    ['Base FCF',       fM(fcf)],
-    ['Growth Y1–5',    (g1*100).toFixed(1)+'%'],
-    ['Growth Y6–10',   (g2*100).toFixed(1)+'%'],
-    ['Terminal growth',(tg*100).toFixed(1)+'%'],
-    ['WACC',           (wacc*100).toFixed(1)+'%'],
+    ['Base owner earnings', fM(fcf)],
+    ['Growth Y1–5',         (g1*100).toFixed(1)+'%'],
+    ['Growth Y6–10',        (g2*100).toFixed(1)+'%'],
+    ['Terminal growth',     (tg*100).toFixed(1)+'%'],
+    ['Discount rate',       (wacc*100).toFixed(1)+'%'],
+    ['Margin of safety',    Math.round(mos*100)+'%'],
+    ['10Y Treasury',        TREASURY_RATE.toFixed(2)+'%'],
   ].map(([a,b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join('');
 }
 
 // ── Sensitivity ──
-function buildSens(fcf, g1, g2, tg, wacc, shares, debt, cp) {
+function buildSens(fcf, g1, g2, tg, wacc, shares, debt, cp, mos) {
   const ws = [-0.02,-0.01,0,0.01,0.02].map(d => wacc+d);
   const ts = [-0.01,-0.005,0,0.005,0.01].map(d => tg+d);
   let h = '<table class="stbl"><thead><tr><th>WACC \\ TG</th>';
@@ -854,11 +939,14 @@ function buildSens(fcf, g1, g2, tg, wacc, shares, debt, cp) {
     h += `<tr><td style="font-weight:500;color:var(--text1)">${(w*100).toFixed(1)}%</td>`;
     ts.forEach(t => {
       if (w <= t) { h += `<td style="color:var(--text2)">—</td>`; return; }
-      const v = dcfQ(fcf,g1,g2,t,w,shares,debt);
+      const v = dcfQ(fcf,g1,g2,t,w,shares,debt); // v = intrinsic value
       const m = cp > 0 ? (v-cp)/cp : 0;
       const cur = Math.abs(w-wacc)<.001 && Math.abs(t-tg)<.001;
-      const bg  = m>.15?'rgba(74,222,128,.12)':m<-.15?'rgba(248,113,113,.12)':'rgba(200,241,53,.06)';
-      const col = m>.15?'var(--green)':m<-.15?'var(--red)':'var(--lime)';
+      const buyB = v * (1 - (mos||0));
+      const isBuy = cp > 0 && cp <= buyB;
+      const isOvr = cp > 0 && cp > v * 1.05;
+      const bg  = isBuy ? 'rgba(74,222,128,.15)' : isOvr ? 'rgba(248,113,113,.12)' : 'rgba(200,241,53,.06)';
+      const col = isBuy ? 'var(--green)' : isOvr ? 'var(--red)' : 'var(--lime)';
       h += `<td class="${cur?'cur':''}" style="background:${bg};color:${col}">$${f2(v)}</td>`;
     });
     h += '</tr>';
