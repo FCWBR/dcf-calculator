@@ -484,13 +484,17 @@ async function fetchMassive(ticker, key) {
   const snap = snapR.ticker  || {};
   const det  = detR.results  || {};
 
-  // Price from snapshot — day close, fallback to lastTrade, fallback to prevDay close
-  // Price: try day close, last trade, prev day close, or derive from todaysChange
-  const price  = snap.day?.c ?? snap.lastTrade?.p ?? snap.prevDay?.c ?? 0;
-  const prev   = snap.prevDay?.c ?? 0;
-  // Use Massive's pre-calculated change fields if available (more reliable)
-  const chg    = snap.todaysChange    ?? (price - prev);
-  const chgP   = snap.todaysChangePerc ?? (prev ? (chg / prev) * 100 : 0);
+  // Price: multiple fallbacks to handle pre/post market and different plan tiers
+  const prev  = snap.prevDay?.c ?? 0;
+  const rawPrice = snap.day?.c
+                ?? snap.lastTrade?.p
+                ?? snap.min?.c
+                ?? (prev > 0 && snap.todaysChange != null ? prev + snap.todaysChange : 0)
+                ?? prev;
+  const price = rawPrice || prev; // final fallback to prev close
+  const chg   = snap.todaysChange    ?? (price - prev);
+  const chgP  = snap.todaysChangePerc ?? (prev > 0 ? (chg / prev) * 100 : 0);
+  console.log('Price sources — day.c:', snap.day?.c, 'lastTrade.p:', snap.lastTrade?.p, 'prevDay.c:', prev, 'todaysChange:', snap.todaysChange, '→ price:', price);
 
   // Shares from reference (in actual shares — convert to millions)
   const sharesRaw = det.weighted_shares_outstanding
@@ -550,6 +554,12 @@ async function fetchMassive(ticker, key) {
     if (fcfHist.length >= 2 && fcfHist[0] !== 0) {
       estG = ((fcfHist[fcfHist.length-1] / fcfHist[0]) ** (1 / (fcfHist.length-1)) - 1) * 100;
     }
+    // Sanity check: if FCF > 500,000 it's probably raw dollars not millions
+    if (Math.abs(fcf) > 500000) {
+      console.warn('Massive FCF looks like raw dollars, dividing by 1e6 again:', fcf);
+      fcf = Math.round(fcf / 1e6);
+      netDebt = Math.round(netDebt / 1e6);
+    }
     fcfSource = fcf !== 0;
 
   } catch(finErr) {
@@ -605,6 +615,12 @@ async function fetchMassive(ticker, key) {
           estG = ((fcfHistFMP[fcfHistFMP.length-1] / fcfHistFMP[0]) ** (1 / (fcfHistFMP.length-1)) - 1) * 100;
         }
 
+        // Sanity check: if FCF > 500,000 it's probably in raw dollars not millions
+        if (fcf !== null && Math.abs(fcf) > 500000) {
+          console.warn('FCF looks like raw dollars, dividing by 1e6 again:', fcf);
+          fcf = Math.round(fcf / 1e6);
+          netDebt = Math.round(netDebt / 1e6);
+        }
         fcfSource = fcf !== null && fcf !== 0;
         console.log('FMP result — FCF:', fcf, 'M | Net debt:', netDebt, 'M | opCF:', opCF, 'capX:', capX);
       } catch(fmpErr) {
@@ -769,7 +785,7 @@ function renderRes(r) {
     { lbl:'Intrinsic value',   val:'$'+f2(iv),                          sub:'per share (DCF)' },
     { lbl:'Current price',     val:'$'+f2(cp),                          sub:'from Massive snapshot' },
     { lbl:'Upside / downside', val:`${m>=0?'+':''}${f1(m)}%`,           sub:'vs intrinsic value', c:col[cls] },
-    { lbl:'Enterprise value',  val:'$'+fB(ev),                          sub:'PV FCF + terminal' },
+    { lbl:'Enterprise value',  val:fB(ev),                          sub:'PV FCF + terminal' },
   ].map(t => `<div class="scard"><div class="lbl">${t.lbl}</div><div class="val"${t.c?` style="color:${t.c}"`:''}>${t.val}</div><div class="sub">${t.sub}</div></div>`).join('');
 
   // FCF table
