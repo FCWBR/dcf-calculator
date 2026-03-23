@@ -298,7 +298,7 @@ async function testFMP() {
   resultEl.style.border = '1px solid rgba(200,241,53,.25)';
   resultEl.textContent = 'Testing…';
   try {
-    const r = await fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?limit=1&apikey=${key}`);
+    const r = await fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?period=annual&limit=1&apikey=${key}`);
     const data = await r.json();
     if (Array.isArray(data) && data.length > 0 && data[0].operatingCashFlow) {
       resultEl.style.background = 'var(--green-dim)';
