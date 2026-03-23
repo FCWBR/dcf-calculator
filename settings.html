@@ -109,6 +109,7 @@ input::placeholder { color: var(--text2); }
   </a>
   <div class="topbar-right">
     <a href="index.html" onclick="window.location.href='index.html'" style="cursor:pointer;">DCF Model</a>
+    <span id="tb-version" style="font-size:10px;color:var(--text2);letter-spacing:.06em;border:1px solid var(--border);border-radius:3px;padding:2px 8px;" title="Last deployed"></span>
     <span class="active">⚙ Settings</span>
   </div>
 </nav>
@@ -196,6 +197,25 @@ input::placeholder { color: var(--text2); }
 </div>
 
 <script>
+// ── Version ──
+(async () => {
+  try {
+    const r = await fetch(window.location.href, { method: 'HEAD', cache: 'no-store' });
+    const lastMod = r.headers.get('Last-Modified');
+    const el = document.getElementById('tb-version');
+    if (lastMod) {
+      const d = new Date(lastMod);
+      const pad = n => String(n).padStart(2,'0');
+      el.textContent = `v${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      el.title = 'Deployed: ' + d.toUTCString();
+    } else {
+      el.textContent = 'v—';
+    }
+  } catch(e) {
+    document.getElementById('tb-version').textContent = 'v—';
+  }
+})();
+
 // ── Load saved values ──
 const fields = {
   'massive-key': 'iv_massive_key',
