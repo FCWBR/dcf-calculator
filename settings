@@ -108,7 +108,7 @@ input::placeholder { color: var(--text2); }
     <span class="logo-text">Intrinsic<b>Value</b></span>
   </a>
   <div class="topbar-right">
-    <a href="index.html" onclick="window.location.href='index.html';return false;" style="cursor:pointer;">DCF Model</a>
+    <a href="index.html" onclick="window.location.href='index.html'" style="cursor:pointer;">DCF Model</a>
     <span class="active">⚙ Settings</span>
   </div>
 </nav>
