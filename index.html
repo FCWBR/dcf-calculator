@@ -571,10 +571,10 @@ async function fetchMassive(ticker, key) {
         fcfSource = fcf !== 0;
         console.log('FMP fallback succeeded — FCF:', fcf, 'M | Net debt:', netDebt, 'M');
       } catch(fmpErr) {
-        console.warn('FMP fallback failed:', fmpErr.message);
+        console.error('FMP fallback failed:', fmpErr.message);
       }
     } else {
-      console.warn('No FMP key set — add one in Settings for automatic FCF prefill');
+      console.warn('No FMP key configured — go to Settings and add your FMP API key');
     }
   }
 
@@ -590,6 +590,9 @@ async function fetchMassive(ticker, key) {
     ebitda,   eps,             estG,
     fcfSource
   };
+  // Note: fcf===null means both Massive and FMP failed
+  // fcfSource===true means Massive provided it
+  // fcf!==null && fcfSource===false means FMP provided it
 }
 
 async function mget(url) {
@@ -639,9 +642,14 @@ function fillAss(d) {
   const srcEl = document.getElementById('fcf-src');
   if (d.fcfSource) { show('fcf-src'); } else { hide('fcf-src'); }
 
-  document.getElementById('ass-desc').textContent = d.fcfSource
-    ? `Assumptions prefilled from Massive financial statements for ${d.ticker} (annual, most recent). Adjust as needed.`
-    : `Could not load financial statements — may require Stocks Developer plan. Enter Base FCF and Net Debt manually.`;
+  const descEl = document.getElementById('ass-desc');
+  if (d.fcfSource) {
+    descEl.textContent = `Assumptions prefilled for ${d.ticker} (annual, most recent). Adjust as needed.`;
+  } else if (d.fcf !== null) {
+    descEl.textContent = `Financials loaded via FMP fallback for ${d.ticker}. Adjust assumptions as needed.`;
+  } else {
+    descEl.innerHTML = `Could not load financial statements automatically. Make sure your <a href="settings.html" style="color:var(--lime)">FMP key is saved in Settings</a>, or enter Base FCF and Net Debt manually.`;
+  }
 }
 
 function resetAss() {
