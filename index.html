@@ -78,7 +78,6 @@ body { background: var(--bg); color: var(--text0); font-family: var(--mono); fon
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text2); }
 .field-hint { font-size: 11px; color: var(--text2); margin-top: 4px; }
-#key-ok { font-size: 11px; color: var(--green); display: none; margin-top: 6px; }
 
 input[type=text], input[type=password], input[type=number] {
   background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px;
@@ -226,44 +225,27 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
   <section class="section" id="sec-setup">
     <div class="section-header"><span class="section-sq"></span><span class="section-title">Company setup</span></div>
     <hr class="section-rule"/>
-    <p class="section-desc">Enter a ticker to auto-fetch data from Massive, or adjust the assumptions manually after fetching.</p>
+    <p class="section-desc">Enter a ticker to auto-fetch real-time data from Massive.</p>
+
+    <div id="api-warning" class="panel" style="display:none;border-color:rgba(248,113,113,.3);background:var(--red-dim);">
+      <div style="font-size:12px;color:var(--red);">⚠ API keys not configured. <a href="settings.html" style="color:var(--lime);">Go to Settings →</a> to enter your Massive API key and Cloudflare proxy URL before fetching data.</div>
+    </div>
+
+    <div id="api-status" class="panel" style="display:none;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;gap:20px;flex-wrap:wrap;" id="api-status-pills"></div>
+        <a href="settings.html" style="font-size:11px;color:var(--text2);text-decoration:none;letter-spacing:.08em;">⚙ Edit settings</a>
+      </div>
+    </div>
 
     <div class="panel">
-      <div class="panel-label">Auto-fetch from Massive <span class="tag">Paid API</span></div>
-      <p class="panel-desc">
-        Fetches real-time price, company details, and financial statements (cash flow, income, balance sheet).
-        Financial data requires the Stocks Developer plan or higher. Your key is stored locally and sent only to
-        <code>api.massive.com</code>. Get or manage your key at
-        <a href="https://massive.com/dashboard" target="_blank">massive.com/dashboard</a>.
-      </p>
-      <div class="field-grid">
-        <div class="field">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end;">
+        <div class="field" style="margin-bottom:0;">
           <label>Ticker</label>
           <input type="text" id="inp-ticker" placeholder="E.g. AAPL" maxlength="12"
-            onkeydown="if(event.key==='Enter')go()" style="text-transform:uppercase;letter-spacing:.06em;"/>
+            onkeydown="if(event.key==='Enter')go()" style="text-transform:uppercase;letter-spacing:.06em;font-size:15px;"/>
         </div>
-        <div class="field">
-          <label>Massive API Key</label>
-          <input type="password" id="inp-key" placeholder="your-massive-api-key" autocomplete="off"/>
-          <div id="key-ok">✓ Key saved in browser</div>
-        </div>
-        <div class="field" style="justify-content:flex-end;">
-          <button class="btn btn-lime" onclick="go()">Fetch data →</button>
-        </div>
-      </div>
-      <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div class="field">
-          <label>Cloudflare Proxy URL <span class="tag">Required for browser</span></label>
-          <input type="text" id="inp-proxy" placeholder="https://massive-proxy.folkert-brokking.workers.dev" value="https://massive-proxy.folkert-brokking.workers.dev" autocomplete="off"/>
-          <div id="proxy-ok" style="font-size:11px;color:var(--green);display:none;margin-top:6px;">✓ Proxy URL saved in browser</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:6px;">Forwards requests to api.massive.com to bypass CORS.</div>
-        </div>
-        <div class="field">
-          <label>FMP API Key <span class="tag">Financials fallback</span></label>
-          <input type="password" id="inp-fmp" placeholder="your-fmp-api-key (free at fmp.com)" autocomplete="off"/>
-          <div id="fmp-ok" style="font-size:11px;color:var(--green);display:none;margin-top:6px;">✓ FMP key saved in browser</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:6px;">Used as fallback for FCF &amp; net debt if Massive financials unavailable. Free tier: 250 calls/day at <a href="https://financialmodelingprep.com/developer" target="_blank" style="color:var(--lime)">financialmodelingprep.com</a>.</div>
-        </div>
+        <button class="btn btn-lime" style="padding:12px 24px;font-size:13px;" onclick="go()">Fetch data →</button>
       </div>
     </div>
   </section>
@@ -389,14 +371,12 @@ setInterval(() => {
   document.getElementById('tb-clock').textContent = new Date().toUTCString().replace('GMT','UTC');
 }, 1000);
 
-// ── Key persistence ──
-let KEY = localStorage.getItem('iv_massive_key') || '';
-if (KEY) {
-  document.getElementById('inp-key').value = KEY;
-  document.getElementById('key-ok').style.display = 'block';
-}
-// Load all keys from localStorage (set via settings.html)
-let FMP_KEY = localStorage.getItem('iv_fmp_key') || '';
+// ── Keys — loaded from localStorage (set via settings.html) ──
+let KEY     = localStorage.getItem('iv_massive_key') || '';
+let FMP_KEY = localStorage.getItem('iv_fmp_key')     || '';
+
+// ── Proxy base URL ──
+const BASE = () => (localStorage.getItem('iv_proxy_url') || 'https://massive-proxy.folkert-brokking.workers.dev').replace(/\/+$/, '');
 
 // Show API status bar
 function renderApiStatus() {
@@ -428,11 +408,6 @@ function renderApiStatus() {
     mkPill('FMP fallback', !!fmpKey, fmpKey ? '✓ configured' : 'not set — manual FCF input required');
 }
 renderApiStatus();
-
-document.getElementById('inp-key').addEventListener('change', () => {
-  KEY = document.getElementById('inp-key').value.trim();
-  if (KEY) { localStorage.setItem('iv_massive_key', KEY); document.getElementById('key-ok').style.display = 'block'; }
-});
 
 // ── Sliders ──
 function ss(k) { document.getElementById('i-'+k).value = parseFloat(document.getElementById('s-'+k).value).toFixed(1); }
@@ -475,15 +450,7 @@ async function go() {
   }
 }
 
-// ── Massive API — corrected endpoints from official docs ──
-// Base URL:  https://api.massive.com
-// Snapshot:  GET /v2/snapshot/locale/us/markets/stocks/tickers/{ticker}?apiKey=
-// Reference: GET /v3/reference/tickers/{ticker}?apiKey=
-// Cash Flow: GET /stocks/financials/v1/cash-flow-statements?tickers={ticker}&timeframe=annual&sort=period_end.desc&limit=3&apiKey=
-// Income:    GET /stocks/financials/v1/income-statements?tickers={ticker}&timeframe=annual&sort=period_end.desc&limit=3&apiKey=
-// Balance:   GET /stocks/financials/v1/balance-sheets?tickers={ticker}&timeframe=annual&sort=period_end.desc&limit=1&apiKey=
 
-const BASE = () => (localStorage.getItem('iv_proxy_url') || 'https://massive-proxy.folkert-brokking.workers.dev').replace(/\/+$/, '');
 
 async function fetchMassive(ticker, key) {
   const qs = `apiKey=${encodeURIComponent(key)}`;
@@ -562,7 +529,7 @@ async function fetchMassive(ticker, key) {
   } catch(finErr) {
     console.warn('Massive financials unavailable, trying FMP fallback:', finErr.message);
     // FMP fallback for FCF + net debt
-    const fmpKey = document.getElementById('inp-fmp').value.trim() || FMP_KEY;
+    const fmpKey = localStorage.getItem('iv_fmp_key') || FMP_KEY;
     if (fmpKey) {
       try {
         const fmpBase = 'https://financialmodelingprep.com/api/v3';
