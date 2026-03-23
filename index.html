@@ -536,30 +536,42 @@ async function fetchMassive(ticker, key) {
     if (fmpKey) {
       try {
         console.log('Trying FMP fallback for', ticker);
-        const fmpBase = 'https://financialmodelingprep.com/api/v3';
-        const [fmpCF, fmpBal, fmpInc] = await Promise.all([
-          fetch(`${fmpBase}/cash-flow-statement/${ticker}?limit=3&apikey=${fmpKey}`).then(r => r.json()),
-          fetch(`${fmpBase}/balance-sheet-statement/${ticker}?limit=1&apikey=${fmpKey}`).then(r => r.json()),
-          fetch(`${fmpBase}/income-statement/${ticker}?limit=1&apikey=${fmpKey}`).then(r => r.json()),
+        // Try v4 stable endpoint first, fall back to v3
+        const fmpV3 = 'https://financialmodelingprep.com/api/v3';
+        const fmpV4 = 'https://financialmodelingprep.com/api/v4';
+
+        // Fetch all three statements — try v3 which is more broadly available on free tier
+        const [cfResp, balResp, incResp] = await Promise.all([
+          fetch(`${fmpV3}/cash-flow-statement/${ticker}?period=annual&limit=3&apikey=${fmpKey}`),
+          fetch(`${fmpV3}/balance-sheet-statement/${ticker}?period=annual&limit=1&apikey=${fmpKey}`),
+          fetch(`${fmpV3}/income-statement/${ticker}?period=annual&limit=1&apikey=${fmpKey}`),
         ]);
 
-        const cf0  = (Array.isArray(fmpCF)  ? fmpCF[0]  : null) || {};
-        const bal0 = (Array.isArray(fmpBal) ? fmpBal[0] : null) || {};
-        const inc0 = (Array.isArray(fmpInc) ? fmpInc[0] : null) || {};
+        const fmpCF  = await cfResp.json();
+        const fmpBal = await balResp.json();
+        const fmpInc = await incResp.json();
 
-        // FMP: operatingCashFlow and capitalExpenditure are both positive values
-        // FCF = operatingCashFlow - capitalExpenditure
+        console.log('FMP CF response:', JSON.stringify(fmpCF).slice(0, 200));
+        console.log('FMP Bal response:', JSON.stringify(fmpBal).slice(0, 200));
+
+        const cf0  = (Array.isArray(fmpCF)  && fmpCF.length  > 0 ? fmpCF[0]  : null) || {};
+        const bal0 = (Array.isArray(fmpBal) && fmpBal.length > 0 ? fmpBal[0] : null) || {};
+        const inc0 = (Array.isArray(fmpInc) && fmpInc.length > 0 ? fmpInc[0] : null) || {};
+
+        // FCF = operatingCashFlow - |capitalExpenditure|
         const opCF = cf0.operatingCashFlow ?? 0;
         const capX = Math.abs(cf0.capitalExpenditure ?? 0);
-        fcf = Math.round((opCF - capX) / 1e6);
+        const rawFcf = opCF - capX;
+        fcf = rawFcf !== 0 ? Math.round(rawFcf / 1e6) : null;
 
+        // Net Debt = totalDebt - cash
         const totalDebt = bal0.totalDebt ?? 0;
-        const cashFMP   = bal0.cashAndCashEquivalents ?? 0;
+        const cashFMP   = bal0.cashAndCashEquivalents ?? bal0.cashAndShortTermInvestments ?? 0;
         netDebt = Math.round((totalDebt - cashFMP) / 1e6);
 
-        revenue = inc0.revenue != null ? inc0.revenue / 1e9 : null;
+        revenue = (inc0.revenue ?? inc0.totalRevenue) != null ? (inc0.revenue ?? inc0.totalRevenue) / 1e9 : null;
         ebitda  = inc0.ebitda  != null ? inc0.ebitda  / 1e9 : null;
-        eps     = inc0.eps ?? null;
+        eps     = inc0.eps ?? inc0.epsdiluted ?? null;
 
         // FCF growth from FMP history (oldest first)
         const fcfHistFMP = (Array.isArray(fmpCF) ? fmpCF : [])
@@ -568,8 +580,9 @@ async function fetchMassive(ticker, key) {
         if (fcfHistFMP.length >= 2 && fcfHistFMP[0] !== 0) {
           estG = ((fcfHistFMP[fcfHistFMP.length-1] / fcfHistFMP[0]) ** (1 / (fcfHistFMP.length-1)) - 1) * 100;
         }
-        fcfSource = fcf !== 0;
-        console.log('FMP fallback succeeded — FCF:', fcf, 'M | Net debt:', netDebt, 'M');
+
+        fcfSource = fcf !== null && fcf !== 0;
+        console.log('FMP result — FCF:', fcf, 'M | Net debt:', netDebt, 'M | opCF:', opCF, 'capX:', capX);
       } catch(fmpErr) {
         console.error('FMP fallback failed:', fmpErr.message);
       }
