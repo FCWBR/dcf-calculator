@@ -527,11 +527,15 @@ async function fetchMassive(ticker, key) {
     fcfSource = fcf !== 0;
 
   } catch(finErr) {
-    console.warn('Massive financials unavailable, trying FMP fallback:', finErr.message);
-    // FMP fallback for FCF + net debt
+    console.warn('Massive financials unavailable:', finErr.message);
+  }
+
+  // Always try FMP if FCF is still null (Massive returned nothing or failed)
+  if (fcf === null) {
     const fmpKey = localStorage.getItem('iv_fmp_key') || FMP_KEY;
     if (fmpKey) {
       try {
+        console.log('Trying FMP fallback for', ticker);
         const fmpBase = 'https://financialmodelingprep.com/api/v3';
         const [fmpCF, fmpBal, fmpInc] = await Promise.all([
           fetch(`${fmpBase}/cash-flow-statement/${ticker}?limit=3&apikey=${fmpKey}`).then(r => r.json()),
@@ -543,30 +547,34 @@ async function fetchMassive(ticker, key) {
         const bal0 = (Array.isArray(fmpBal) ? fmpBal[0] : null) || {};
         const inc0 = (Array.isArray(fmpInc) ? fmpInc[0] : null) || {};
 
+        // FMP: operatingCashFlow and capitalExpenditure are both positive values
+        // FCF = operatingCashFlow - capitalExpenditure
         const opCF = cf0.operatingCashFlow ?? 0;
-        const capX = cf0.capitalExpenditure ?? 0; // already negative in FMP
-        fcf = Math.round((opCF + capX) / 1e6);
+        const capX = Math.abs(cf0.capitalExpenditure ?? 0);
+        fcf = Math.round((opCF - capX) / 1e6);
 
-        const totalDebt = (bal0.totalDebt ?? 0);
-        const cashFMP   = (bal0.cashAndCashEquivalents ?? 0);
+        const totalDebt = bal0.totalDebt ?? 0;
+        const cashFMP   = bal0.cashAndCashEquivalents ?? 0;
         netDebt = Math.round((totalDebt - cashFMP) / 1e6);
 
-        revenue = inc0.revenue     != null ? inc0.revenue / 1e9     : null;
-        ebitda  = inc0.ebitda      != null ? inc0.ebitda  / 1e9     : null;
-        eps     = inc0.eps         ?? null;
+        revenue = inc0.revenue != null ? inc0.revenue / 1e9 : null;
+        ebitda  = inc0.ebitda  != null ? inc0.ebitda  / 1e9 : null;
+        eps     = inc0.eps ?? null;
 
-        // FCF growth from FMP history
+        // FCF growth from FMP history (oldest first)
         const fcfHistFMP = (Array.isArray(fmpCF) ? fmpCF : [])
-          .map(r => (r.operatingCashFlow ?? 0) + (r.capitalExpenditure ?? 0))
+          .map(r => (r.operatingCashFlow ?? 0) - Math.abs(r.capitalExpenditure ?? 0))
           .filter(v => v !== 0).reverse();
         if (fcfHistFMP.length >= 2 && fcfHistFMP[0] !== 0) {
           estG = ((fcfHistFMP[fcfHistFMP.length-1] / fcfHistFMP[0]) ** (1 / (fcfHistFMP.length-1)) - 1) * 100;
         }
         fcfSource = fcf !== 0;
-        console.log('FMP fallback succeeded, FCF:', fcf, 'Net debt:', netDebt);
+        console.log('FMP fallback succeeded — FCF:', fcf, 'M | Net debt:', netDebt, 'M');
       } catch(fmpErr) {
-        console.warn('FMP fallback also failed:', fmpErr.message);
+        console.warn('FMP fallback failed:', fmpErr.message);
       }
+    } else {
+      console.warn('No FMP key set — add one in Settings for automatic FCF prefill');
     }
   }
 
