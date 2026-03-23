@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>IntrinsicValue — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:        #111210;
+  --bg1:       #181917;
+  --bg2:       #1e1f1d;
+  --bg3:       #252623;
+  --border:    #2a2b28;
+  --border2:   #353632;
+  --text0:     #e8e9e4;
+  --text1:     #9a9b96;
+  --text2:     #5a5b57;
+  --lime:      #c8f135;
+  --lime-dim:  rgba(200,241,53,0.10);
+  --lime-dim2: rgba(200,241,53,0.05);
+  --green:     #4ade80;
+  --green-dim: rgba(74,222,128,0.10);
+  --red:       #f87171;
+  --red-dim:   rgba(248,113,113,0.10);
+  --mono: 'DM Mono', 'Courier New', monospace;
+  --serif: 'DM Serif Display', Georgia, serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text0); font-family: var(--mono); font-size: 13px; line-height: 1.6; min-height: 100vh; }
+
+#topbar { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-box { width: 28px; height: 28px; background: var(--lime); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; font-weight: 500; color: #111; }
+.logo-text { font-family: var(--mono); font-size: 14px; font-weight: 400; color: var(--text0); }
+.logo-text b { font-weight: 500; }
+.topbar-right { display: flex; align-items: center; gap: 20px; font-size: 11px; color: var(--text2); letter-spacing: 0.08em; }
+.topbar-right a { color: var(--text2); text-decoration: none; }
+.topbar-right a:hover { color: var(--lime); }
+.topbar-right .active { color: var(--lime); }
+
+#page { max-width: 780px; margin: 0 auto; padding: 64px 32px 100px; }
+
+.page-eyebrow { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: 0.18em; color: var(--lime); text-transform: uppercase; margin-bottom: 16px; }
+.page-eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--lime); }
+.page-h1 { font-family: var(--serif); font-size: clamp(32px, 5vw, 52px); font-weight: 400; line-height: 1.05; color: var(--text0); margin-bottom: 12px; }
+.page-sub { font-size: 13px; color: var(--text1); line-height: 1.7; margin-bottom: 48px; max-width: 520px; }
+
+.section { margin-bottom: 48px; }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.section-sq { width: 6px; height: 6px; background: var(--lime); border-radius: 1px; flex-shrink: 0; }
+.section-title { font-family: var(--mono); font-size: 18px; font-weight: 400; color: var(--text0); }
+.section-rule { border: none; border-top: 1px solid var(--border); margin-bottom: 20px; }
+.section-desc { font-size: 12px; color: var(--text1); margin-bottom: 20px; line-height: 1.7; }
+.section-desc a { color: var(--lime); text-decoration: none; }
+.section-desc a:hover { text-decoration: underline; }
+.section-desc code { color: var(--lime); font-family: var(--mono); }
+
+.panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 24px 28px; }
+
+.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.field:last-child { margin-bottom: 0; }
+.field label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text2); }
+.field-row { display: flex; gap: 10px; align-items: center; }
+.field-hint { font-size: 11px; color: var(--text2); line-height: 1.6; }
+.field-hint a { color: var(--lime); text-decoration: none; }
+.field-hint a:hover { text-decoration: underline; }
+
+input[type=text], input[type=password] {
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px;
+  color: var(--text0); font-family: var(--mono); font-size: 13px;
+  padding: 10px 14px; outline: none; flex: 1; transition: border-color 0.15s;
+}
+input[type=text]:focus, input[type=password]:focus { border-color: var(--lime); }
+input::placeholder { color: var(--text2); }
+
+.btn { font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 9px 16px; border-radius: 4px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.btn-lime { background: var(--lime); border: none; color: #111; }
+.btn-lime:hover { background: #d4f54a; }
+.btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--text1); }
+.btn-ghost:hover { border-color: var(--lime); color: var(--lime); }
+.btn-danger { background: transparent; border: 1px solid rgba(248,113,113,.3); color: var(--red); }
+.btn-danger:hover { background: var(--red-dim); }
+
+.status-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 11px; min-height: 18px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot.ok  { background: var(--lime); }
+.dot.warn { background: var(--text2); }
+.dot.err  { background: var(--red); }
+
+.save-banner { display: none; background: var(--green-dim); border: 1px solid rgba(74,222,128,.25); border-radius: 4px; padding: 10px 16px; font-size: 12px; color: var(--green); margin-bottom: 24px; }
+
+.key-display { font-family: var(--mono); font-size: 12px; color: var(--text2); letter-spacing: .04em; }
+
+#disclaimer { border-top: 1px solid var(--border); padding-top: 24px; margin-top: 48px; font-size: 11px; color: var(--text2); line-height: 1.8; }
+
+@media(max-width:520px){ #page { padding: 40px 16px 80px; } }
+</style>
+</head>
+<body>
+
+<nav id="topbar">
+  <a href="index.html" class="logo">
+    <div class="logo-box">IV</div>
+    <span class="logo-text">Intrinsic<b>Value</b></span>
+  </a>
+  <div class="topbar-right">
+    <a href="index.html">DCF Model</a>
+    <span class="active">⚙ Settings</span>
+  </div>
+</nav>
+
+<div id="page">
+
+  <div class="page-eyebrow">Configuration</div>
+  <h1 class="page-h1">Settings</h1>
+  <p class="page-sub">Enter your API keys once — they're stored locally in your browser and never sent anywhere except the respective API endpoints.</p>
+
+  <div id="save-banner" class="save-banner">✓ Settings saved.</div>
+
+  <!-- Massive -->
+  <section class="section">
+    <div class="section-header"><span class="section-sq"></span><span class="section-title">Massive API</span></div>
+    <hr class="section-rule"/>
+    <p class="section-desc">
+      Used for real-time stock price, company details, and financial statements (cash flow, balance sheet, income).
+      Financial statements require the <b style="color:var(--text0)">Stocks Developer</b> plan or higher.
+      Get or manage your key at <a href="https://massive.com/dashboard" target="_blank">massive.com/dashboard</a>.
+    </p>
+    <div class="panel">
+      <div class="field">
+        <label>API Key</label>
+        <div class="field-row">
+          <input type="password" id="massive-key" placeholder="your-massive-api-key" autocomplete="off"/>
+          <button class="btn btn-ghost" onclick="toggleVis('massive-key', this)">show</button>
+        </div>
+        <div class="status-row" id="massive-status"></div>
+      </div>
+      <div class="field">
+        <label>Cloudflare Proxy URL <span style="background:var(--lime-dim);border:1px solid rgba(200,241,53,.25);color:var(--lime);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px;margin-left:6px;">Required</span></label>
+        <div class="field-row">
+          <input type="text" id="proxy-url" placeholder="https://your-worker.workers.dev" autocomplete="off"/>
+        </div>
+        <div class="field-hint" style="margin-top:4px;">
+          Needed to bypass browser CORS restrictions. Set up a free Cloudflare Worker at
+          <a href="https://dash.cloudflare.com" target="_blank">dash.cloudflare.com</a> that forwards requests to <code>api.massive.com</code>.
+        </div>
+        <div class="status-row" id="proxy-status"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FMP -->
+  <section class="section">
+    <div class="section-header"><span class="section-sq"></span><span class="section-title">Financial Modeling Prep</span></div>
+    <hr class="section-rule"/>
+    <p class="section-desc">
+      Used as a fallback to fetch FCF and net debt when Massive financial statements are unavailable.
+      Free tier includes 250 calls/day — no credit card required.
+      Get a free key at <a href="https://financialmodelingprep.com/developer" target="_blank">financialmodelingprep.com/developer</a>.
+    </p>
+    <div class="panel">
+      <div class="field">
+        <label>API Key</label>
+        <div class="field-row">
+          <input type="password" id="fmp-key" placeholder="your-fmp-api-key" autocomplete="off"/>
+          <button class="btn btn-ghost" onclick="toggleVis('fmp-key', this)">show</button>
+        </div>
+        <div class="status-row" id="fmp-status"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Save -->
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:48px;">
+    <button class="btn btn-lime" style="padding:12px 28px;font-size:13px;" onclick="saveAll()">Save settings →</button>
+    <button class="btn btn-danger" onclick="clearAll()">Clear all keys</button>
+  </div>
+
+  <!-- Status overview -->
+  <section class="section">
+    <div class="section-header"><span class="section-sq"></span><span class="section-title">Connection status</span></div>
+    <hr class="section-rule"/>
+    <div class="panel" id="status-overview"></div>
+  </section>
+
+  <div id="disclaimer">
+    All API keys are stored exclusively in your browser's local storage. They are sent only to the respective API endpoints (api.massive.com via your Cloudflare proxy, and api.financialmodelingprep.com). IntrinsicValue does not store, transmit, or log your keys.
+  </div>
+
+</div>
+
+<script>
+// ── Load saved values ──
+const fields = {
+  'massive-key': 'iv_massive_key',
+  'proxy-url':   'iv_proxy_url',
+  'fmp-key':     'iv_fmp_key',
+};
+
+Object.entries(fields).forEach(([id, storageKey]) => {
+  const val = localStorage.getItem(storageKey) || '';
+  if (val) document.getElementById(id).value = val;
+});
+
+renderStatus();
+
+// ── Toggle visibility ──
+function toggleVis(id, btn) {
+  const el = document.getElementById(id);
+  const show = el.type === 'password';
+  el.type = show ? 'text' : 'password';
+  btn.textContent = show ? 'hide' : 'show';
+}
+
+// ── Save all ──
+function saveAll() {
+  Object.entries(fields).forEach(([id, storageKey]) => {
+    const val = document.getElementById(id).value.trim().replace(/\/+$/, '');
+    if (val) localStorage.setItem(storageKey, val);
+    else localStorage.removeItem(storageKey);
+  });
+  renderStatus();
+  const banner = document.getElementById('save-banner');
+  banner.style.display = 'block';
+  setTimeout(() => { banner.style.display = 'none'; }, 3000);
+}
+
+// ── Clear all ──
+function clearAll() {
+  if (!confirm('Clear all saved API keys from this browser?')) return;
+  Object.values(fields).forEach(k => localStorage.removeItem(k));
+  Object.keys(fields).forEach(id => { document.getElementById(id).value = ''; });
+  renderStatus();
+}
+
+// ── Render status ──
+function renderStatus() {
+  const massive = localStorage.getItem('iv_massive_key') || '';
+  const proxy   = localStorage.getItem('iv_proxy_url')   || '';
+  const fmp     = localStorage.getItem('iv_fmp_key')     || '';
+
+  // Inline status dots
+  setStatus('massive-status', massive, massive ? 'API key configured' : 'Not set');
+  setStatus('proxy-status',   proxy,   proxy   ? proxy.replace('https://','') : 'Not set — required for browser use');
+  setStatus('fmp-status',     fmp,     fmp     ? 'API key configured' : 'Not set — FCF and net debt must be entered manually');
+
+  // Overview panel
+  const allGood = massive && proxy;
+  const rows = [
+    { label: 'Massive API key',      ok: !!massive, note: massive ? maskKey(massive) : 'Missing' },
+    { label: 'Cloudflare proxy',     ok: !!proxy,   note: proxy   ? proxy.replace('https://','') : 'Missing — required' },
+    { label: 'FMP fallback key',     ok: !!fmp,     note: fmp     ? maskKey(fmp) : 'Not set — optional but recommended' },
+    { label: 'Overall status',       ok: allGood,   note: allGood ? 'Ready to use' : 'Configure Massive key and proxy to continue' },
+  ];
+
+  document.getElementById('status-overview').innerHTML = rows.map(r => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="dot ${r.ok ? 'ok' : 'warn'}"></span>
+        <span style="color:var(--text1);font-size:12px;">${r.label}</span>
+      </div>
+      <span style="font-size:11px;color:${r.ok ? 'var(--text0)' : 'var(--text2)'};">${r.note}</span>
+    </div>
+  `).join('').replace(/<div[^>]*>[\s\S]*?<\/div>\s*$/, s => s.replace('border-bottom:1px solid var(--border)', 'border-bottom:none'));
+}
+
+function setStatus(id, ok, text) {
+  document.getElementById(id).innerHTML =
+    `<span class="dot ${ok ? 'ok' : 'warn'}"></span><span style="color:${ok?'var(--text0)':'var(--text2)'};">${text}</span>`;
+}
+
+function maskKey(k) {
+  if (k.length <= 8) return '••••••••';
+  return k.slice(0, 4) + '••••••••' + k.slice(-4);
+}
+</script>
+</body>
+</html>
