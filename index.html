@@ -254,46 +254,46 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
 
   <!-- Section 2: Assumptions -->
   <section class="section hidden" id="sec-ass">
-    <div class="section-header"><span class="section-sq"></span><span class="section-title">DCF assumptions</span></div>
+    <div class="section-header"><span class="section-sq"></span><span class="section-title">Model inputs</span></div>
     <hr class="section-rule"/>
     <p class="section-desc" id="ass-desc">Adjust the model assumptions below. Figures are prefilled from financial statements where available.</p>
 
     <div class="panel">
-      <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);margin-bottom:16px;">Owner Earnings &amp; Growth</div>
+      <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);margin-bottom:16px;">DCF — Free Cash Flow &amp; Growth</div>
       <div class="ass-grid">
         <div class="a-item">
-          <label>Owner Earnings (M USD) <span id="fcf-src" class="tag hidden">from API</span></label>
+          <label>Base FCF (M USD) <span id="fcf-src" class="tag hidden">from API</span></label>
           <input type="number" id="i-fcf" step="1"/>
-          <span class="hint">Buffett: Net Income + D&amp;A − maintenance CapEx. FCF is a good proxy.</span>
+          <span class="hint">Free Cash Flow = Operating Cash Flow − Capital Expenditures (total, in millions).</span>
         </div>
         <div class="a-item">
-          <label>Growth Rate Y1–5 (%)</label>
+          <label>FCF Growth Rate Y1–5 (%)</label>
           <input type="range" id="s-g1" min="-20" max="50" step="0.5" oninput="ss('g1')"/>
           <input type="number" id="i-g1" step="0.5" oninput="si('g1')"/>
-          <span class="hint">Be conservative. Buffett prefers predictable, consistent growth.</span>
+          <span class="hint">Near-term annual FCF growth estimate. Use historical CAGR as a starting point.</span>
         </div>
         <div class="a-item">
-          <label>Growth Rate Y6–10 (%)</label>
+          <label>FCF Growth Rate Y6–10 (%)</label>
           <input type="range" id="s-g2" min="-10" max="30" step="0.5" oninput="ss('g2')"/>
           <input type="number" id="i-g2" step="0.5" oninput="si('g2')"/>
-          <span class="hint">Should be lower than Y1–5. Regression to mean.</span>
+          <span class="hint">Mid-term rate — typically lower than Y1–5 as growth normalises.</span>
         </div>
         <div class="a-item">
           <label>Terminal Growth Rate (%)</label>
           <input type="range" id="s-tg" min="0" max="4" step="0.1" oninput="ss('tg')"/>
           <input type="number" id="i-tg" step="0.1" oninput="si('tg')"/>
-          <span class="hint">Buffett uses long-run GDP rate (~2.5%). Never exceed inflation.</span>
+          <span class="hint">Long-run perpetual growth — typically aligned with GDP growth (~2.5%). Should not exceed inflation.</span>
         </div>
         <div class="a-item">
-          <label>Discount Rate (%) <span id="treasury-badge" style="background:var(--lime-dim);border:1px solid rgba(200,241,53,.25);color:var(--lime);font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:3px;margin-left:6px;"></span></label>
+          <label>Discount Rate / Cost of Capital (%) <span id="treasury-badge" style="background:var(--lime-dim);border:1px solid rgba(200,241,53,.25);color:var(--lime);font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:3px;margin-left:6px;"></span></label>
           <input type="range" id="s-wacc" min="4" max="20" step="0.1" oninput="ss('wacc')"/>
           <input type="number" id="i-wacc" step="0.1" oninput="si('wacc')"/>
-          <span class="hint">Buffett uses 30Y Treasury as yardstick + small risk premium. Never WACC.</span>
+          <span class="hint">Required rate of return. Often set as WACC or 10Y Treasury + equity risk premium.</span>
         </div>
         <div class="a-item">
           <label>Shares Outstanding (M)</label>
           <input type="number" id="i-shares" step="1"/>
-          <span class="hint">Prefilled from ticker details</span>
+          <span class="hint">Diluted shares outstanding in millions. Prefilled from ticker details.</span>
         </div>
       </div>
       <div class="divider-lbl">Enterprise bridge</div>
@@ -301,33 +301,49 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
         <div class="a-item">
           <label>Net Debt (M USD)</label>
           <input type="number" id="i-debt" step="1"/>
-          <span class="hint">Total debt minus cash</span>
+          <span class="hint">Total debt minus cash and equivalents (from balance sheet).</span>
         </div>
         <div class="a-item">
-          <label>Margin of Safety (%) <span style="background:var(--lime-dim);border:1px solid rgba(200,241,53,.25);color:var(--lime);font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:3px;margin-left:6px;">Buffett</span></label>
+          <label>Margin of Safety (%)</label>
           <input type="range" id="s-mos" min="0" max="75" step="5" oninput="ss('mos')"/>
           <input type="number" id="i-mos" step="5" oninput="si('mos')"/>
-          <span class="hint">Buffett requires 25–50% discount to intrinsic value before buying.</span>
+          <span class="hint">A safety discount below intrinsic value — your required discount before buying. Typical range: 15–40%.</span>
         </div>
       </div>
-      <div class="divider-lbl">Graham Formula inputs <span style="background:var(--lime-dim);border:1px solid rgba(200,241,53,.25);color:var(--lime);font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:3px;margin-left:6px;">Revised Benjamin Graham</span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:20px;">
+
+      <div class="divider-lbl">Blended model inputs — Earnings, Dividends &amp; Book Value</div>
+      <div class="ass-grid">
         <div class="a-item">
           <label>EPS — TTM (USD) <span id="eps-src" class="tag hidden">from API</span></label>
           <input type="number" id="i-eps" step="0.01"/>
-          <span class="hint">Trailing 12-month earnings per share. Graham formula requires positive EPS.</span>
+          <span class="hint">Trailing 12-month diluted EPS. Used by the Graham Number and Earnings Multiple models.</span>
         </div>
         <div class="a-item">
-          <label>Expected EPS Growth Rate (%) <span id="aaa-badge" style="background:var(--lime-dim);border:1px solid rgba(200,241,53,.25);color:var(--lime);font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:3px;margin-left:6px;"></span></label>
-          <input type="range" id="s-epsG" min="0" max="25" step="0.5" oninput="ss('epsG')"/>
-          <input type="number" id="i-epsG" step="0.5" oninput="si('epsG')"/>
-          <span class="hint">Long-term EPS growth estimate. Graham: use analyst 5Y consensus or be conservative.</span>
+          <label>EPS — Forward / Expected (USD)</label>
+          <input type="number" id="i-epsfwd" step="0.01"/>
+          <span class="hint">Next-twelve-month analyst EPS estimate. Used by the Earnings Multiple (P/E) model.</span>
         </div>
         <div class="a-item">
-          <label>Graham Margin of Safety (%)</label>
-          <input type="range" id="s-gmos" min="0" max="50" step="5" oninput="ss('gmos')"/>
-          <input type="number" id="i-gmos" step="5" oninput="si('gmos')"/>
-          <span class="hint">Safety discount on Graham intrinsic value. Default 15%.</span>
+          <label>Book Value Per Share (USD) <span id="bvps-src" class="tag hidden">from API</span></label>
+          <input type="number" id="i-bvps" step="0.01"/>
+          <span class="hint">Total equity divided by shares outstanding. Used by the Graham Number.</span>
+        </div>
+        <div class="a-item">
+          <label>Annual Dividend Per Share (USD) <span id="div-src" class="tag hidden">from API</span></label>
+          <input type="number" id="i-div" step="0.01" min="0"/>
+          <span class="hint">Current annualised dividend. Set to 0 if no dividend is paid — DDM will be excluded.</span>
+        </div>
+        <div class="a-item">
+          <label>Dividend Growth Rate (%)</label>
+          <input type="range" id="s-gd" min="0" max="15" step="0.5" oninput="ss('gd')"/>
+          <input type="number" id="i-gd" step="0.5" oninput="si('gd')"/>
+          <span class="hint">Expected annual dividend growth rate. If ≥ discount rate, DDM will be excluded (mathematical constraint).</span>
+        </div>
+        <div class="a-item">
+          <label>Target P/E Ratio</label>
+          <input type="range" id="s-pe" min="5" max="40" step="0.5" oninput="ss('pe')"/>
+          <input type="number" id="i-pe" step="0.5" oninput="si('pe')"/>
+          <span class="hint">Historical or sector-average P/E for relative valuation. Graham used 15× as a fair multiple.</span>
         </div>
       </div>
       <div class="btn-row">
@@ -343,7 +359,7 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
     <hr class="section-rule"/>
 
     <div id="vblock" class="vblock f">
-      <div id="veyebrow" class="veyebrow f">Discounted Cash Flow — Buffett Method</div>
+      <div id="veyebrow" class="veyebrow f">Discounted Cash Flow</div>
       <div id="vhead" class="vh f"></div>
       <div id="vsub" class="vsub"></div>
 
@@ -395,31 +411,53 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
         <span>Sensitivity analysis — Discount rate vs terminal growth rate</span>
       </div>
       <div id="sens-inner" class="hidden" style="margin-top:16px;">
-        <p style="font-size:11px;color:var(--text2);margin-bottom:12px;">Intrinsic value/share across scenarios. Green = price below Buffett buy price (MoS applied), red = overvalued. Highlighted = current inputs.</p>
+        <p style="font-size:11px;color:var(--text2);margin-bottom:12px;">Intrinsic value per share across discount rate and terminal growth scenarios. Green = price below buy target (MoS applied). Highlighted cell = your current inputs.</p>
         <div class="tbl-wrap" id="sens-tbl"></div>
       </div>
     </div>
 
-    <!-- Graham Formula Results -->
-    <div class="panel" id="graham-panel" style="margin-top:20px;padding:24px 28px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <!-- Blended Intrinsic Value Panel -->
+    <div class="panel hidden" id="blended-panel" style="margin-top:20px;padding:24px 28px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
         <div>
-          <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);margin-bottom:4px;">Revised Benjamin Graham Formula</div>
-          <div style="font-size:11px;color:var(--text2);">IV = EPS × (8.5 + 2g) × 4.4 / Y &nbsp;·&nbsp; <span id="g-aaa-live" style="color:var(--text1);"></span></div>
+          <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);margin-bottom:4px;">Blended Intrinsic Value — 4-Model Algorithm</div>
+          <div style="font-size:11px;color:var(--text2);">DCF · Dividend Discount · Earnings Multiple · Graham Number — conditional weighting applied</div>
         </div>
-        <div id="graham-verdict-badge" style="font-size:12px;padding:6px 14px;border-radius:4px;font-weight:500;"></div>
+        <div id="blended-verdict-badge" style="font-size:12px;padding:6px 16px;border-radius:4px;font-weight:500;letter-spacing:.04em;"></div>
       </div>
-      <div id="graham-na" style="display:none;font-size:12px;color:var(--text2);padding:12px 0;">
-        ⚠ Graham formula requires positive EPS. This company is not yet profitable — the formula does not apply.
-      </div>
-      <div id="graham-results" style="display:none;">
-        <div class="stats-grid" id="graham-stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:0;"></div>
-        <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
-          <table class="dt" style="font-size:11px;">
-            <tbody id="graham-tbody"></tbody>
-          </table>
+
+      <!-- Big blended value -->
+      <div style="display:flex;align-items:flex-end;gap:24px;margin-bottom:24px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);margin-bottom:4px;">Blended intrinsic value</div>
+          <div id="blended-iv" style="font-family:var(--serif);font-size:40px;color:var(--text0);line-height:1;">—</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;">per share</div>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);margin-bottom:8px;">vs current price <span id="blended-price-lbl" style="color:var(--text1);"></span></div>
+          <div id="blended-gauge-wrap" style="height:8px;background:var(--bg3);border-radius:4px;border:1px solid var(--border2);position:relative;overflow:visible;margin-bottom:6px;">
+            <div id="blended-g-fill" style="height:100%;border-radius:4px;width:0%;transition:width .4s;"></div>
+            <div id="blended-g-iv"    style="position:absolute;top:-5px;width:2px;height:18px;background:var(--text0);border-radius:1px;transform:translateX(-50%);left:50%;"></div>
+            <div id="blended-g-buy"   style="position:absolute;top:-5px;width:2px;height:18px;background:var(--lime);border-radius:1px;transform:translateX(-50%);left:35%;"></div>
+            <div id="blended-g-price" style="position:absolute;top:-8px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #f0a500;transform:translateX(-50%);left:60%;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text2);">
+            <span>◀ Buy zone (with MoS)</span><span>Overvalued ▶</span>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);margin-bottom:4px;">Buy below</div>
+          <div id="blended-buy" style="font-size:22px;color:var(--lime);font-family:var(--serif);">—</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;" id="blended-mos-lbl"></div>
         </div>
       </div>
+
+      <!-- Per-model stats -->
+      <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);margin-bottom:10px;">Model breakdown &amp; weights</div>
+      <div id="blended-model-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;"></div>
+
+      <!-- Conditions applied -->
+      <div id="blended-rules" style="font-size:11px;color:var(--text2);border-top:1px solid var(--border);padding-top:14px;line-height:1.8;"></div>
     </div>
 
   </section>
@@ -542,10 +580,10 @@ function renderApiStatus() {
 renderApiStatus();
 
 // ── Sliders ──
-function ss(k) { document.getElementById('i-'+k).value = parseFloat(document.getElementById('s-'+k).value).toFixed(1); }
+function ss(k) { const v = parseFloat(document.getElementById('s-'+k).value); const d = (k==='mos'||k==='gmos') ? 0 : 1; document.getElementById('i-'+k).value = v.toFixed(d); }
 function si(k) { const v = parseFloat(document.getElementById('i-'+k).value); if (!isNaN(v)) document.getElementById('s-'+k).value = v; }
 function sl(k, v, decimals) {
-  const d = decimals !== undefined ? decimals : (k === 'mos' ? 0 : 1);
+  const d = decimals !== undefined ? decimals : ((k==='mos'||k==='gmos') ? 0 : 1);
   document.getElementById('s-'+k).value = v;
   document.getElementById('i-'+k).value = parseFloat(v).toFixed(d);
 }
@@ -571,7 +609,7 @@ async function go() {
   if (!key)    { stat('error', '⚠ No Massive API key. Go to <a href="settings.html" style="color:var(--lime)">Settings →</a>'); return; }
   KEY = key;
 
-  hide('sec-ass'); hide('sec-results');
+  hide('sec-ass'); hide('sec-results'); hide('blended-panel');
   stat('loading', `Fetching ${ticker} from Massive…`);
 
   try {
@@ -624,7 +662,7 @@ async function fetchMassive(ticker, key) {
   console.log('Shares raw:', sharesRaw, '| Shares (M):', sharesM, '| Price:', price, '| Market cap (B):', mcapB);
 
   // Phase 2: financials (requires Developer tier+)
-  let fcf = null, netDebt = 0, revenue = null, ebitda = null, eps = null;
+  let fcf = null, netDebt = 0, revenue = null, ebitda = null, eps = null, bvps = null, div0 = null, epsFwd = null, peTarget = null;
   let estG = 8, fcfSource = false;
 
   try {
@@ -660,6 +698,14 @@ async function fetchMassive(ticker, key) {
     revenue = inc0.revenue != null ? inc0.revenue / 1e9 : null;
     ebitda  = inc0.ebitda  != null ? inc0.ebitda  / 1e9 : null;
     eps     = inc0.diluted_earnings_per_share ?? inc0.basic_earnings_per_share ?? null;
+
+    // BVPS = total equity / shares
+    const equity = bal0.total_stockholders_equity ?? bal0.stockholders_equity ?? 0;
+    if (equity && sharesRaw) bvps = parseFloat((equity / sharesRaw).toFixed(2));
+
+    // Annual dividend per share = abs(cash dividends paid) / shares
+    const divPaid = cf0.cash_dividends_paid ?? cf0.payment_of_dividends ?? 0;
+    if (divPaid && sharesRaw) div0 = parseFloat((Math.abs(divPaid) / sharesRaw).toFixed(2));
 
     // Historical FCF CAGR from up to 3 annual periods
     const fcfHist = cfRows
@@ -747,6 +793,17 @@ async function fetchMassive(ticker, key) {
         ebitda  = inc0.ebitda  != null ? inc0.ebitda  / 1e9 : null;
         eps     = inc0.eps ?? inc0.epsdiluted ?? null;
 
+        // BVPS from FMP balance sheet
+        if (bal0.bookValuePerShare != null) {
+          bvps = parseFloat(parseFloat(bal0.bookValuePerShare).toFixed(2));
+        } else if (bal0.totalStockholdersEquity && sharesRaw) {
+          bvps = parseFloat((bal0.totalStockholdersEquity / sharesRaw).toFixed(2));
+        }
+
+        // Dividend from FMP — try income statement dividendPerShare, then profile lastDiv
+        const fmpDiv = inc0.dividendPerShare ?? inc0.dividendsPerShare ?? null;
+        if (fmpDiv != null && fmpDiv > 0) div0 = parseFloat(parseFloat(fmpDiv).toFixed(2));
+
         // FCF growth from FMP history (oldest first)
         const fcfHistFMP = (Array.isArray(fmpCF) ? fmpCF : [])
           .map(r => (r.operatingCashFlow ?? 0) - Math.abs(r.capitalExpenditure ?? 0))
@@ -764,6 +821,21 @@ async function fetchMassive(ticker, key) {
         // Allow negative FCF — cash-burning companies (biotech, pre-revenue) have negative FCF
         fcfSource = fcf !== null;
         console.log('FMP result — FCF:', fcf, 'M | Net debt:', netDebt, 'M | opCF:', opCF, 'capX:', capX);
+
+        // Fetch FMP company profile for forwardEps + trailing PE (mirrors yfinance forwardEps / trailingPE)
+        try {
+          const profResp = await fetch(`${fmpStable}/profile?symbol=${ticker}&apikey=${fmpKey}`);
+          const profData = await profResp.json();
+          const prof     = (Array.isArray(profData) && profData.length > 0 ? profData[0] : null) || {};
+          if (prof.priceToEarningsRatioTTM != null && prof.priceToEarningsRatioTTM > 0) peTarget = parseFloat(prof.priceToEarningsRatioTTM.toFixed(1));
+          // Forward EPS = price / forward PE, or fall back to TTM EPS
+          if (prof.forwardPE != null && prof.forwardPE > 0 && price > 0) {
+            epsFwd = parseFloat((price / prof.forwardPE).toFixed(2));
+          }
+          console.log('FMP profile — PE:', peTarget, 'forwardEps derived:', epsFwd);
+        } catch(profErr) {
+          console.warn('FMP profile fetch failed:', profErr.message);
+        }
       } catch(fmpErr) {
         console.error('FMP fallback failed:', fmpErr.message);
       }
@@ -782,7 +854,8 @@ async function fetchMassive(ticker, key) {
     desc:     det.description      || '',
     fcf,      netDebt,         revenue,
     ebitda,   eps,             estG,
-    fcfSource
+    fcfSource, bvps,           div0,
+    epsFwd,   peTarget
   };
   // Note: fcf===null means both Massive and FMP failed
   // fcfSource===true means Massive provided it
@@ -822,12 +895,25 @@ function updateHero(d) {
 
 // ── Fill assumptions ──
 function fillAss(d) {
+  // DCF inputs
   document.getElementById('i-fcf').value    = d.fcf != null ? d.fcf : '';
   document.getElementById('i-shares').value = d.sharesM ? Math.round(d.sharesM) : '';
   document.getElementById('i-debt').value   = d.netDebt ?? 0;
-  console.log('DCF inputs — FCF (M):', d.fcf, '| Shares (M):', Math.round(d.sharesM), '| Net debt (M):', d.netDebt, '| Price:', d.price);
 
-  // Graham inputs — prefill EPS from API
+  // Growth defaults — cap at 20% for conservative estimate
+  const g1 = Math.min(Math.max(isNaN(d.estG) ? 8 : d.estG, -20), 20);
+  const g2 = Math.min(Math.max(g1 * 0.55, -10), 15);
+  // Discount rate = 10Y Treasury + 3% equity risk premium (minimum 7%)
+  const discRate = Math.max(7.0, parseFloat((TREASURY_RATE + 3.0).toFixed(1)));
+  sl('g1',   g1.toFixed(1));
+  sl('g2',   g2.toFixed(1));
+  sl('tg',   '2.5');
+  sl('wacc', discRate.toFixed(1));
+  sl('mos',  '25', 0);
+
+  if (d.fcfSource) { show('fcf-src'); } else { hide('fcf-src'); }
+
+  // Blended model inputs
   if (d.eps != null) {
     document.getElementById('i-eps').value = parseFloat(d.eps).toFixed(2);
     show('eps-src');
@@ -835,27 +921,37 @@ function fillAss(d) {
     document.getElementById('i-eps').value = '';
     hide('eps-src');
   }
-  // Default EPS growth: use g1 estimate as a proxy, capped at 15%
-  const epsGrowthDefault = Math.min(15, Math.max(0, isNaN(d.estG) ? 8 : Math.abs(d.estG)));
-  sl('epsG', epsGrowthDefault.toFixed(1));
-  sl('gmos', '15', 0);
 
-  // Buffett-style defaults:
-  // - Growth capped at 20% (be conservative)
-  // - Discount rate = Treasury + 3% risk premium (Buffett's yardstick)
-  // - Terminal growth = 2.5% (long-run GDP)
-  // - Margin of safety = 30% default
-  const g1 = Math.min(Math.max(isNaN(d.estG) ? 8 : d.estG, -20), 20);
-  const g2 = Math.min(Math.max(g1 * 0.55, -10), 15);
-  const buffettRate = Math.max(7.0, parseFloat((TREASURY_RATE + 3.0).toFixed(1)));
-  sl('g1', g1.toFixed(1));
-  sl('g2', g2.toFixed(1));
-  sl('tg',   '2.5');
-  sl('wacc', buffettRate.toFixed(1));
-  sl('mos',  '30', 0);
+  // Forward EPS: use API value if available, fall back to TTM EPS (mirrors Python: info.get('forwardEps', self.eps_ttm))
+  const fwdEpsVal = d.epsFwd != null ? d.epsFwd : d.eps;
+  document.getElementById('i-epsfwd').value = fwdEpsVal != null ? parseFloat(fwdEpsVal).toFixed(2) : '';
 
-  const srcEl = document.getElementById('fcf-src');
-  if (d.fcfSource) { show('fcf-src'); } else { hide('fcf-src'); }
+  // BVPS
+  if (d.bvps != null && d.bvps > 0) {
+    document.getElementById('i-bvps').value = d.bvps.toFixed(2);
+    show('bvps-src');
+  } else {
+    document.getElementById('i-bvps').value = '';
+    hide('bvps-src');
+  }
+
+  // Dividend
+  if (d.div0 != null && d.div0 > 0) {
+    document.getElementById('i-div').value = d.div0.toFixed(2);
+    show('div-src');
+  } else {
+    document.getElementById('i-div').value = '0';
+    hide('div-src');
+  }
+
+  // Dividend growth default 3%
+  // P/E target: use trailing PE from API if available (mirrors Python: info.get('trailingPE', 15))
+  sl('gd', '3.0');
+  const peVal = (d.peTarget != null && d.peTarget > 0 && d.peTarget < 100) ? d.peTarget.toFixed(1) : '15.0';
+  sl('pe', peVal);
+
+  console.log('Inputs — FCF(M):', d.fcf, '| Shares(M):', Math.round(d.sharesM),
+    '| Net debt(M):', d.netDebt, '| EPS:', d.eps, '| BVPS:', d.bvps, '| Div:', d.div0, '| Price:', d.price);
 
   const descEl = document.getElementById('ass-desc');
   if (d.fcf !== null) {
@@ -871,8 +967,8 @@ function resetAss() {
   if (Object.keys(G).length) fillAss(G);
   else {
     const r = Math.max(7.0, parseFloat((TREASURY_RATE+3).toFixed(1)));
-    sl('g1','8.0'); sl('g2','4.4'); sl('tg','2.5'); sl('wacc', r.toFixed(1)); sl('mos','30',0);
-    sl('epsG','8.0'); sl('gmos','15',0);
+    sl('g1','8.0'); sl('g2','4.4'); sl('tg','2.5'); sl('wacc', r.toFixed(1)); sl('mos','25',0);
+    sl('gd','3.0'); sl('pe','15.0');
   }
 }
 
@@ -911,16 +1007,28 @@ function runDCF() {
   renderRes({ rows, pvFCF, pvTV, ev, eq, iv, cp, debt, shares, wacc, tg, g1, g2, fcf, mos });
   buildSens(fcf, g1, g2, tg, wacc, shares, debt, cp, mos);
 
-  // Graham Formula
-  const eps   = parseFloat(document.getElementById('i-eps').value);
-  const epsG  = parseFloat(document.getElementById('i-epsG').value);
-  const gmos  = (parseFloat(document.getElementById('i-gmos').value) || 0) / 100;
-  renderGraham(eps, epsG, gmos, cp);
+  // Blended 4-model valuation
+  const blendedInputs = {
+    fcfPerShare: shares > 0 ? fcf / shares : null,
+    gFcf:  g1,
+    gt:    tg,
+    r:     wacc,
+    epsTtm:  parseFloat(document.getElementById('i-eps').value)    || 0,
+    epsFwd:  parseFloat(document.getElementById('i-epsfwd').value) || 0,
+    bvps:    parseFloat(document.getElementById('i-bvps').value)   || 0,
+    d0:      parseFloat(document.getElementById('i-div').value)    || 0,
+    gd:      (parseFloat(document.getElementById('i-gd').value)    || 0) / 100,
+    peTarget: parseFloat(document.getElementById('i-pe').value)    || 15,
+    mos,
+    cp,
+    sector: G.sector || ''
+  };
+  renderBlended(runBlended(blendedInputs), blendedInputs);
   show('sec-results');
   document.getElementById('sec-results').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
-// ── Render results (Buffett Method) ──
+// ── Render results (DCF Model) ──
 function renderRes(r) {
   const { iv, cp, pvFCF, pvTV, ev, eq, rows, debt, shares, wacc, tg, g1, g2, fcf, mos } = r;
   const buyBelow   = iv * (1 - mos);
@@ -932,21 +1040,21 @@ function renderRes(r) {
   if (cp > 0 && cp <= buyBelow) {
     cls     = 'u';
     subtext = `At $${f2(cp)}, trading well below intrinsic value of $${f2(iv)}.` +
-      (mosApplied ? ` Your Buffett buy price with ${Math.round(mos*100)}% margin of safety is $${f2(buyBelow)} — this hits you over the head.` : ``);
+      (mosApplied ? ` With a ${Math.round(mos*100)}% margin of safety your buy target is $${f2(buyBelow)} — the stock appears attractively priced.` : ``);
   } else if (cp > 0 && cp <= iv * 1.05) {
     cls     = 'f';
     subtext = `At $${f2(cp)}, near intrinsic value of $${f2(iv)}.` +
-      (mosApplied ? ` Still above your Buffett buy price of $${f2(buyBelow)} (${Math.round(mos*100)}% MoS). Buffett would wait.` : ``);
+      (mosApplied ? ` Still above your buy target of $${f2(buyBelow)} (${Math.round(mos*100)}% MoS). Wait for a wider margin of safety.` : ``);
   } else {
     cls     = 'o';
     subtext = `At $${f2(cp)}, trading above intrinsic value of $${f2(iv)}.` +
-      (mosApplied ? ` Buffett buy price with ${Math.round(mos*100)}% MoS: $${f2(buyBelow)}.` : ``);
+      (mosApplied ? ` Buy target with ${Math.round(mos*100)}% MoS: $${f2(buyBelow)}.` : ``);
   }
 
   document.getElementById('vblock').className  = 'vblock ' + cls;
   const ve = document.getElementById('veyebrow');
   ve.className  = 'veyebrow ' + cls;
-  ve.textContent = `DCF — Buffett Method — ${G.ticker || ''}`;
+  ve.textContent = `DCF — Discounted Cash Flow — ${G.ticker || ''}`;
   const vh = document.getElementById('vhead');
   vh.className  = 'vh ' + cls;
   vh.innerHTML  = cls === 'u'
@@ -978,9 +1086,9 @@ function renderRes(r) {
   document.getElementById('stat-grid').innerHTML = [
     { lbl:'Intrinsic value',   val:'$'+f2(iv),         sub:'per share (owner earnings DCF)' },
     { lbl:'Buy below',         val:'$'+f2(buyBelow),   sub:`${Math.round(mos*100)}% margin of safety`, c:'var(--lime)' },
-    { lbl:'Current price',     val:'$'+f2(cp),         sub:'live from Massive' },
+    { lbl:'Current price',     val:'$'+f2(cp),         sub:'market price' },
     { lbl:'Upside / downside', val:`${pct>=0?'+':''}${f1(pct)}%`, sub:'price vs intrinsic', c:col[cls] },
-    { lbl:'Enterprise value',  val:fB(ev),             sub:'PV owner earnings + terminal' },
+    { lbl:'Enterprise value',  val:fB(ev),             sub:'PV FCF + terminal value' },
   ].map(t => `<div class="scard"><div class="lbl">${t.lbl}</div><div class="val"${t.c?` style="color:${t.c}"`:''}>${t.val}</div><div class="sub">${t.sub}</div></div>`).join('');
 
   // FCF projection table
@@ -1000,13 +1108,13 @@ function renderRes(r) {
     ['Equity value',                 fM(eq),    '',           false],
     ['Shares outstanding',           Math.round(shares).toLocaleString()+'M', '', false],
     ['Intrinsic value / share',      '$'+f2(iv),'← DCF result', true],
-    ['Buy below ('+Math.round(mos*100)+'% MoS)', '$'+f2(buyBelow), '← Buffett buy price', true],
+    ['Buy below ('+Math.round(mos*100)+'% MoS)', '$'+f2(buyBelow), '← Buy target', true],
   ].map(([a,b,c,k]) =>
     `<tr class="${k?'tr-key':''}"><td>${a}</td><td>${b}</td><td style="color:var(--text2);font-size:11px;">${c}</td></tr>`
   ).join('');
 
   document.getElementById('inp-body').innerHTML = [
-    ['Base owner earnings', fM(fcf)],
+    ['Base FCF', fM(fcf)],
     ['Growth Y1–5',         (g1*100).toFixed(1)+'%'],
     ['Growth Y6–10',        (g2*100).toFixed(1)+'%'],
     ['Terminal growth',     (tg*100).toFixed(1)+'%'],
@@ -1057,76 +1165,215 @@ function togSens() {
   btn.classList.toggle('open', open);
 }
 
-// ── Graham Formula (Revised Benjamin Graham) ──
-function calculateGrahamValue(eps, growthRate, currentBondYield) {
-  if (eps <= 0) return null;
-  const basePE              = 8.5;
-  const historicalBondYield = 4.4;
-  const intrinsicValue      = (eps * (basePE + 2 * growthRate) * historicalBondYield) / currentBondYield;
-  return Math.round(intrinsicValue * 100) / 100;
+// ── Blended Intrinsic Value — 4-Model Algorithm ──
+// Direct JS port of AutoStockValuator.evaluate() (Python)
+// Models: DCF (5-year) | DDM (Gordon Growth) | Earnings Multiple (P/E) | Graham Number
+// Weighting: equal split (1/activeCount) matching Python's adj_weight = 1.0 / active_count
+
+function runBlended({ fcfPerShare, gFcf, gt, r, epsTtm, epsFwd, bvps, d0, gd, peTarget, mos, cp, sector }) {
+  const rules = [];
+
+  // ── Step 2: Execute valuation functions ──
+
+  // Function 1: DCF — 5-year FCF projection + Gordon Growth terminal value
+  // V_DCF = Σ [FCF₀×(1+g_fcf)^t / (1+r)^t] + [FCF₅×(1+g_t) / (r−g_t)×(1+r)^5]
+  let vDCF = null;
+  if (fcfPerShare != null && !isNaN(fcfPerShare) && r > gt) {
+    let pv = 0, cf = fcfPerShare;
+    for (let t = 1; t <= 5; t++) {
+      cf *= (1 + gFcf);
+      pv += cf / Math.pow(1 + r, t);
+    }
+    const tv = (cf * (1 + gt)) / ((r - gt) * Math.pow(1 + r, 5));
+    vDCF = pv + tv;
+  }
+
+  // Function 2: Dividend Discount Model — V_DDM = D₀×(1+g_d) / (r − g_d)
+  // Rule D guard: cap g_d at r−0.01 if it meets or exceeds r (Python: safe_g_div = min(g_div, r − 0.01))
+  const gdSafe = Math.min(gd, r - 0.01);
+  let vDDM = null;
+  if (d0 > 0 && r > gdSafe) {
+    vDDM = (d0 * (1 + gdSafe)) / (r - gdSafe);
+  }
+
+  // Function 3: Earnings Multiple — V_PE = (EPS_fwd × PE_target) / (1+r)
+  let vPE = null;
+  if (epsFwd > 0 && peTarget > 0) {
+    vPE = (epsFwd * peTarget) / (1 + r);
+  }
+
+  // Function 4: Graham Number — V_Graham = √(22.5 × EPS_ttm × BVPS)
+  // Sector list matches Python: technology, healthcare, services, software, communication services, internet
+  const techSectors = ['technology', 'healthcare', 'services', 'software',
+                       'communication services', 'internet'];
+  const sectorLower   = (sector || '').toLowerCase();
+  const isTechService = techSectors.some(s => sectorLower.includes(s));
+  let vGraham = null;
+  if (epsTtm > 0 && bvps > 0 && !isTechService) {
+    vGraham = Math.sqrt(22.5 * epsTtm * bvps);
+  }
+
+  // ── Step 3: Conditional weighting — mirrors Python's weights dict ──
+  // Start all at 1 (active), then zero out per rules, then normalise
+
+  const w = { DCF: 1, DDM: 1, PE: 1, Graham: 1 };
+
+  // Rule A: No dividend paid → exclude DDM
+  if (d0 <= 0) {
+    w.DDM = 0;
+    rules.push('Rule A: No dividend paid — DDM excluded (weight redistributed equally to remaining models).');
+  } else if (gd >= r) {
+    // Rule D: dividend growth ≥ discount rate → DDM undefined, exclude it
+    w.DDM = 0;
+    rules.push(`Rule D: Dividend growth rate (${(gd*100).toFixed(1)}%) ≥ discount rate — DDM excluded (mathematically undefined).`);
+  } else if (gdSafe < gd) {
+    rules.push(`Rule D: Dividend growth rate capped at ${(gdSafe*100).toFixed(1)}% (r−1%) to prevent DDM breakdown.`);
+  }
+
+  // Rule B: Asset-light / tech / service sector, or negative BVPS → exclude Graham Number
+  if (bvps <= 0 || isTechService) {
+    w.Graham = 0;
+    if (isTechService) rules.push('Rule B: ' + sectorLower.charAt(0).toUpperCase() + sectorLower.slice(1) + ' sector — Graham Number excluded (asset-light model distorts result).');
+    else               rules.push('Rule B: Negative or zero book value — Graham Number excluded.');
+  }
+
+  // Rule C: Negative TTM EPS → exclude Graham Number and Earnings Multiple
+  if (epsTtm <= 0) {
+    w.Graham = 0;
+    w.PE     = 0;
+    const remaining = w.DDM > 0 ? 'DCF and DDM' : 'DCF';
+    rules.push(`Rule C: Negative EPS — Graham Number and Earnings Multiple excluded. Valuation relies on ${remaining}.`);
+  }
+
+  // Python: if fcf_per_share <= 0: weights["DCF"] = 0
+  if (fcfPerShare == null || isNaN(fcfPerShare) || fcfPerShare <= 0) {
+    w.DCF = 0;
+    if (fcfPerShare !== null && !isNaN(fcfPerShare) && fcfPerShare <= 0) {
+      rules.push('Note: Negative or zero FCF — DCF excluded (negative FCF distorts present value calculation).');
+    } else {
+      rules.push('Note: FCF data unavailable — DCF excluded. Weight redistributed equally to remaining models.');
+    }
+  }
+
+  // Null-check: model has weight but produced no valid output → exclude it too
+  if (vPE     === null && w.PE     > 0) { w.PE     = 0; rules.push('Note: Earnings Multiple excluded — forward EPS not available. Enter it manually above.'); }
+  if (vDDM    === null && w.DDM    > 0) { w.DDM    = 0; }
+  if (vGraham === null && w.Graham > 0) { w.Graham = 0; }
+
+  // ── Python: adj_weight = 1.0 / active_count  (equal split) ──
+  const activeCount = Object.values(w).filter(v => v > 0).length;
+  if (activeCount === 0) {
+    // All models excluded — cannot value
+    return { vDCF, vDDM, vPE, vGraham,
+             wDCF: 0, wDDM: 0, wPE: 0, wGraham: 0,
+             blended: null, isTechService, gdSafe, rules,
+             error: 'All models excluded — insufficient data to calculate blended intrinsic value.' };
+  }
+  const adjW = 1.0 / activeCount;
+  const wDCF    = w.DCF    > 0 ? adjW : 0;
+  const wDDM    = w.DDM    > 0 ? adjW : 0;
+  const wPE     = w.PE     > 0 ? adjW : 0;
+  const wGraham = w.Graham > 0 ? adjW : 0;
+
+  // ── Step 4: Blended intrinsic value ──
+  // Intrinsic Value = (V_DCF × W_DCF) + (V_DDM × W_DDM) + (V_PE × W_PE) + (V_Graham × W_Graham)
+  let blended = 0;
+  if (vDCF    != null && wDCF    > 0) blended += vDCF    * wDCF;
+  if (vDDM    != null && wDDM    > 0) blended += vDDM    * wDDM;
+  if (vPE     != null && wPE     > 0) blended += vPE     * wPE;
+  if (vGraham != null && wGraham > 0) blended += vGraham * wGraham;
+
+  return { vDCF, vDDM, vPE, vGraham, wDCF, wDDM, wPE, wGraham, blended, isTechService, gdSafe, rules };
 }
 
-function assessGrahamValuation(currentPrice, intrinsicValue, marginOfSafetyPct) {
-  if (!intrinsicValue) return { label: 'N/A', cls: 'f' };
-  const targetPrice = intrinsicValue * (1 - (marginOfSafetyPct / 100));
-  if (currentPrice <= targetPrice)  return { label: 'Strong Buy', cls: 'u' };
-  if (currentPrice <  intrinsicValue) return { label: 'Undervalued', cls: 'f' };
-  return { label: 'Overvalued', cls: 'o' };
-}
+function renderBlended(res, inp) {
+  const { vDCF, vDDM, vPE, vGraham, wDCF, wDDM, wPE, wGraham, blended, rules, error } = res;
+  const { mos, cp } = inp;
+  const panel = document.getElementById('blended-panel');
+  if (panel) panel.classList.remove('hidden');
 
-function renderGraham(eps, epsG, gmos, cp) {
-  const panel     = document.getElementById('graham-panel');
-  const naEl      = document.getElementById('graham-na');
-  const resEl     = document.getElementById('graham-results');
-  const badgeEl   = document.getElementById('graham-verdict-badge');
-  const liveEl    = document.getElementById('g-aaa-live');
-
-  if (liveEl) liveEl.textContent = "AAA bond yield (Moody\u2019s): " + AAA_RATE.toFixed(2) + '%';
-
-  if (!eps || isNaN(eps) || eps <= 0) {
-    naEl.style.display  = 'block';
-    resEl.style.display = 'none';
-    badgeEl.textContent = 'N/A — negative EPS';
-    badgeEl.style.cssText = 'font-size:12px;padding:6px 14px;border-radius:4px;font-weight:500;background:var(--bg3);color:var(--text2);';
+  // Handle all-models-excluded case (mirrors Python "Cannot value" return)
+  if (error || blended == null || blended === 0) {
+    document.getElementById('blended-verdict-badge').textContent = 'Cannot Value';
+    document.getElementById('blended-verdict-badge').style.cssText = 'font-size:12px;padding:6px 16px;border-radius:4px;font-weight:500;background:var(--bg3);color:var(--text2);border:1px solid var(--border);';
+    document.getElementById('blended-iv').textContent  = '—';
+    document.getElementById('blended-iv').style.color  = 'var(--text2)';
+    document.getElementById('blended-buy').textContent = '—';
+    document.getElementById('blended-mos-lbl').textContent = '';
+    document.getElementById('blended-price-lbl').textContent = '';
+    document.getElementById('blended-model-grid').innerHTML = '';
+    document.getElementById('blended-rules').innerHTML =
+      '<span style="color:var(--red);">⚠</span> ' + (error || 'All models returned invalid results — enter data manually above.');
     return;
   }
 
-  naEl.style.display  = 'none';
-  resEl.style.display = 'block';
-
-  const iv        = calculateGrahamValue(eps, epsG, AAA_RATE);
-  const buyBelow  = iv * (1 - gmos);
-  const verdict   = assessGrahamValuation(cp, iv, gmos * 100);
-  const pct       = cp > 0 && iv ? (iv - cp) / cp * 100 : 0;
+  const buyBelow = blended * (1 - mos);
+  const pct      = cp > 0 ? (blended - cp) / cp * 100 : 0;
   const col       = { u: 'var(--green)', o: 'var(--red)', f: 'var(--lime)' };
 
-  // Badge
-  const bgMap = { u: 'var(--green-dim)', o: 'var(--red-dim)', f: 'var(--lime-dim)' };
-  const bdrMap = { u: 'rgba(74,222,128,.3)', o: 'rgba(248,113,113,.3)', f: 'rgba(200,241,53,.2)' };
-  badgeEl.textContent = verdict.label;
-  badgeEl.style.cssText = `font-size:12px;padding:6px 14px;border-radius:4px;font-weight:500;background:${bgMap[verdict.cls]};color:${col[verdict.cls]};border:1px solid ${bdrMap[verdict.cls]};`;
+  // Three-tier verdict matches Python: STRONG BUY / UNDERVALUED / OVERVALUED
+  let cls, verdictText;
+  if (cp > 0 && cp <= buyBelow) {
+    cls = 'u'; verdictText = 'Strong Buy';
+  } else if (cp > 0 && cp < blended) {
+    cls = 'f'; verdictText = 'Undervalued';
+  } else {
+    cls = 'o'; verdictText = 'Overvalued';
+  }
 
-  // Stat cards
-  document.getElementById('graham-stat-grid').innerHTML = [
-    { lbl:'Graham intrinsic value', val:'$'+f2(iv),       sub:'per share' },
-    { lbl:'Buy below ('+(Math.round(gmos*100))+'% MoS)',  val:'$'+f2(buyBelow), sub:'safety-adjusted', c:'var(--lime)' },
-    { lbl:'Current price',          val:'$'+f2(cp),       sub:'live' },
-    { lbl:'Upside / downside',      val:`${pct>=0?'+':''}${f1(pct)}%`, sub:'vs Graham value', c:col[verdict.cls] },
-  ].map(t => `<div class="scard"><div class="lbl">${t.lbl}</div><div class="val"${t.c?` style="color:${t.c}"`:''}>${t.val}</div><div class="sub">${t.sub}</div></div>`).join('');
+  const bgMap     = { u:'rgba(74,222,128,.12)', o:'rgba(248,113,113,.12)', f:'rgba(200,241,53,.06)' };
+  const bdrMap    = { u:'rgba(74,222,128,.3)',  o:'rgba(248,113,113,.3)',  f:'rgba(200,241,53,.2)' };
 
-  // Formula breakdown
-  const pe = 8.5 + 2 * epsG;
-  document.getElementById('graham-tbody').innerHTML = [
-    ['EPS (TTM)',              '$'+f2(eps)],
-    ['Base P/E (no growth)',   '8.5'],
-    ['Growth multiplier',      '2 × '+epsG.toFixed(1)+'% = '+f1(2*epsG)],
-    ['Implied P/E',            f1(pe)],
-    ['EPS × implied P/E',      '$'+f2(eps * pe)],
-    ['× historical AAA (4.4%)', '× 4.4'],
-    ['÷ current AAA yield',    '÷ '+AAA_RATE.toFixed(2)+'%'],
-    ['Graham intrinsic value', '$'+f2(iv)],
-    ['Buy below ('+Math.round(gmos*100)+'% MoS)', '$'+f2(buyBelow)],
-  ].map(([a,b]) => `<tr><td>${a}</td><td style="text-align:right;font-variant-numeric:tabular-nums;">${b}</td></tr>`).join('');
+  // Verdict badge
+  const badge = document.getElementById('blended-verdict-badge');
+  badge.textContent  = verdictText;
+  badge.style.cssText = `font-size:12px;padding:6px 16px;border-radius:4px;font-weight:500;letter-spacing:.04em;background:${bgMap[cls]};color:${col[cls]};border:1px solid ${bdrMap[cls]};`;
+
+  // Big value
+  document.getElementById('blended-iv').textContent  = blended > 0 ? '$' + f2(blended) : '—';
+  document.getElementById('blended-iv').style.color   = col[cls];
+  document.getElementById('blended-buy').textContent  = blended > 0 ? '$' + f2(buyBelow) : '—';
+  document.getElementById('blended-mos-lbl').textContent = Math.round(mos*100) + '% margin of safety';
+  document.getElementById('blended-price-lbl').textContent = cp > 0 ? '— current: $' + f2(cp) : '';
+
+  // Gauge
+  const lo   = Math.min(buyBelow, cp, blended) * 0.80;
+  const hi   = Math.max(buyBelow, cp, blended) * 1.20;
+  const rng  = (hi - lo) || 1;
+  const pp   = v => Math.min(96, Math.max(4, (v - lo) / rng * 100));
+  document.getElementById('blended-g-fill').style.cssText  = `height:100%;border-radius:4px;width:${pp(blended)}%;background:${col[cls]};transition:width .4s;`;
+  document.getElementById('blended-g-iv').style.left        = pp(blended) + '%';
+  document.getElementById('blended-g-buy').style.left       = pp(buyBelow) + '%';
+  document.getElementById('blended-g-price').style.left     = pp(cp) + '%';
+
+  // Per-model cards
+  const activeModels = [wDCF, wDDM, wPE, wGraham].filter(w => w > 0).length;
+  const models = [
+    { name:'DCF',              val: vDCF,    w: wDCF,    sub:'5-year FCF + terminal value' },
+    { name:'Dividend Discount',val: vDDM,    w: wDDM,    sub:'Gordon Growth Model' },
+    { name:'Earnings Multiple',val: vPE,     w: wPE,     sub:'Forward EPS × P/E target' },
+    { name:'Graham Number',    val: vGraham, w: wGraham, sub:'√(22.5 × EPS × BVPS)' },
+  ];
+  document.getElementById('blended-model-grid').innerHTML = models.map(m => {
+    const excluded = m.w === 0;
+    const bg   = excluded ? 'var(--bg3)' : 'var(--bg3)';
+    const border = excluded ? 'var(--border)' : 'var(--border2)';
+    const valStr  = m.val != null ? '$' + f2(m.val) : '—';
+    const wStr    = excluded ? 'excluded' : Math.round(m.w * 100) + '% weight (1/' + activeModels + ')';
+    const wCol    = excluded ? 'var(--text2)' : 'var(--lime)';
+    return `<div style="background:${bg};border:1px solid ${border};border-radius:5px;padding:14px 16px;opacity:${excluded?'.45':'1'};">
+      <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);margin-bottom:6px;">${m.name}</div>
+      <div style="font-size:18px;color:var(--text0);font-family:var(--serif);margin-bottom:4px;">${valStr}</div>
+      <div style="font-size:10px;color:${wCol};margin-bottom:2px;">${wStr}</div>
+      <div style="font-size:10px;color:var(--text2);">${m.sub}</div>
+    </div>`;
+  }).join('');
+
+  // Conditional logic applied
+  const noRules = !rules || rules.length === 0;
+  document.getElementById('blended-rules').innerHTML = noRules
+    ? '<span style="color:var(--lime);">✓</span> All four models are active — no exclusion rules triggered.'
+    : '<span style="color:var(--text2);">Conditions applied: </span>' + rules.map(r => `<br>· ${r}`).join('');
 }
 
 // ── Formatters ──
