@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>IntrinsicValue — Pro DCF Terminal</title>
+<title>IntrinsicValue — DCF Terminal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-/* ... (Houd je bestaande :root en CSS tot en met .scard, die waren perfect) ... */
 :root {
   --bg: #111210; --bg1: #181917; --bg2: #1e1f1d; --bg3: #252623;
   --border: #2a2b28; --border2: #353632;
@@ -18,32 +18,42 @@
   --red: #f87171; --red-dim: rgba(248,113,113,0.10);
   --mono: 'DM Mono', monospace; --serif: 'DM Serif Display', serif;
 }
-/* Behoud alle styling uit je originele bestand hieronder */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text0); font-family: var(--mono); font-size: 13px; line-height: 1.6; min-height: 100vh; }
 #topbar { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
 .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
 .logo-box { width: 28px; height: 28px; background: var(--lime); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 500; color: #111; }
-.logo-text { font-size: 14px; color: var(--text0); }
-#page { max-width: 1160px; margin: 0 auto; padding: 72px 32px 100px; }
-.hero-h1 { font-family: var(--serif); font-size: clamp(40px, 6vw, 70px); font-weight: 400; line-height: 1.05; margin-bottom: 20px; }
+.logo-text { font-size: 14px; color: var(--text0); text-decoration: none; }
+#page { max-width: 1160px; margin: 0 auto; padding: 64px 32px 100px; }
+.hero-h1 { font-family: var(--serif); font-size: clamp(32px, 5vw, 52px); font-weight: 400; line-height: 1.1; margin-bottom: 10px; }
 .hero-h1 em { font-style: italic; color: var(--lime); }
-.section { margin-bottom: 64px; }
-.panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 24px 28px; margin-bottom: 20px; }
-.field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
-input { background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; color: var(--text0); padding: 10px; width: 100%; }
-.btn { font-family: var(--mono); padding: 10px 20px; border-radius: 4px; cursor: pointer; border: none; font-weight: 500; }
+.section { margin-bottom: 48px; }
+.panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 24px; margin-bottom: 20px; }
+.field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.field label { display: block; font-size: 10px; color: var(--text2); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px; }
+input { background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px; color: var(--text0); padding: 10px; width: 100%; font-family: var(--mono); outline: none; }
+input:focus { border-color: var(--lime); }
+.btn { font-family: var(--mono); padding: 12px 24px; border-radius: 4px; cursor: pointer; border: none; font-weight: 500; transition: 0.2s; }
 .btn-lime { background: var(--lime); color: #111; }
-.btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--text1); }
+.btn-lime:hover { background: #d4f54a; }
 .vblock { border-radius: 6px; padding: 28px; margin-bottom: 28px; border: 1px solid; }
-.vblock.u { background: var(--green-dim); border-color: #4ade804d; }
-.vblock.o { background: var(--red-dim); border-color: #f871714d; }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 28px; }
-.scard { background: var(--bg2); border: 1px solid var(--border); padding: 16px; border-radius: 6px; }
+.vblock.u { background: var(--green-dim); border-color: rgba(74,222,128,0.3); color: var(--green); }
+.vblock.o { background: var(--red-dim); border-color: rgba(248,113,113,0.3); color: var(--red); }
+.vblock.f { background: var(--lime-dim); border-color: rgba(200,241,53,0.3); color: var(--lime); }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.scard { background: var(--bg2); border: 1px solid var(--border); padding: 20px; border-radius: 6px; }
+.scard .lbl { font-size: 10px; color: var(--text2); text-transform: uppercase; margin-bottom: 8px; }
+.scard .val { font-size: 24px; font-family: var(--serif); color: var(--text0); }
 .dt { width: 100%; border-collapse: collapse; margin-top: 10px; }
-.dt td, .dt th { padding: 8px; border-bottom: 1px solid var(--border); text-align: right; }
+.dt td, .dt th { padding: 10px; border-bottom: 1px solid var(--border); text-align: right; font-variant-numeric: tabular-nums; }
 .dt th { color: var(--text2); font-size: 10px; text-transform: uppercase; }
-.hidden { display: none; }
+.hidden { display: none !important; }
+.stbl { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
+.stbl th, .stbl td { border: 1px solid var(--border); padding: 8px; font-variant-numeric: tabular-nums; }
+.stbl th { background: var(--bg3); color: var(--text2); }
+#status { font-size: 12px; padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; line-height: 1.6; }
+#status.loading { background: var(--lime-dim); color: var(--lime); border: 1px solid rgba(200,241,53,.25); }
+#status.error { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,.25); }
 </style>
 </head>
 <body>
@@ -54,121 +64,340 @@ input { background: var(--bg3); border: 1px solid var(--border2); border-radius:
     <span class="logo-text">Intrinsic<b>Value</b></span>
   </a>
   <div class="topbar-right">
-    <span id="tb-version"></span>
-    <a href="settings.html" style="color:var(--text2); text-decoration:none;">⚙ Settings</a>
-    <span id="tb-clock"></span>
+    <a href="settings.html" style="color:var(--text2); text-decoration:none; font-size:11px; letter-spacing:0.08em;">⚙ SETTINGS</a>
+    <span id="tb-clock" style="margin-left:15px; font-size:10px; color:var(--text2);"></span>
   </div>
 </nav>
 
 <div id="page">
   <section class="section">
-    <h1 class="hero-h1" id="hero-h1">Stock Valuation <em>Terminal</em></h1>
-    <p style="color:var(--text1); max-width: 600px; margin-bottom: 24px;">Advanced DCF model with Mid-Year Convention. Data provided by Massive & FMP.</p>
+    <h1 class="hero-h1">Intrinsic Value <em>Terminal</em></h1>
+    <p style="color:var(--text1); margin-bottom: 24px;">Advanced DCF Analysis with Mid-Year Convention & Growth Phase Modeling.</p>
     
     <div class="panel">
-      <div style="display:flex; gap:10px;">
-        <input type="text" id="inp-ticker" placeholder="ENTER TICKER (E.G. NVDA)" style="text-transform:uppercase;">
-        <button class="btn btn-lime" onclick="go()">FETCH DATA</button>
+      <div style="display:flex; gap:10px; flex-wrap: wrap;">
+        <input type="text" id="inp-ticker" placeholder="ENTER TICKER (E.G. AAPL)" style="text-transform:uppercase; flex:1; min-width: 200px;" onkeydown="if(event.key==='Enter')go()">
+        <button class="btn btn-lime" onclick="go()">FETCH DATA →</button>
       </div>
     </div>
   </section>
 
-  <div id="status"></div>
+  <div id="status" class="hidden"></div>
 
   <section class="section hidden" id="sec-ass">
     <div class="panel">
-        <h3 style="margin-bottom:15px; color:var(--lime);">Model Assumptions</h3>
+        <h3 style="margin-bottom:20px; color:var(--text0); font-weight:400; font-size:16px;">Model Assumptions</h3>
         <div class="field-grid">
-            <div class="field">
-                <label>Base FCF (M USD)</label>
-                <input type="number" id="i-fcf">
-            </div>
-            <div class="field">
-                <label>WACC (%)</label>
-                <input type="number" id="i-wacc" step="0.1" value="10.0">
-            </div>
-            <div class="field">
-                <label>Terminal Growth (%)</label>
-                <input type="number" id="i-tg" step="0.1" value="2.5">
-            </div>
-            <div class="field">
-                <label>Shares (M)</label>
-                <input type="number" id="i-shares">
-            </div>
-            <div class="field">
-                <label>Net Debt (M)</label>
-                <input type="number" id="i-debt">
-            </div>
+            <div class="field"><label>Base FCF (M USD)</label><input type="number" id="i-fcf"></div>
+            <div class="field"><label>Growth Y1-5 (%)</label><input type="number" id="i-g1" value="10"></div>
+            <div class="field"><label>Growth Y6-10 (%)</label><input type="number" id="i-g2" value="5"></div>
+            <div class="field"><label>WACC (%)</label><input type="number" id="i-wacc" step="0.1" value="9.0"></div>
+            <div class="field"><label>Terminal Growth (%)</label><input type="number" id="i-tg" step="0.1" value="2.5"></div>
+            <div class="field"><label>Shares (M)</label><input type="number" id="i-shares"></div>
+            <div class="field"><label>Net Debt (M)</label><input type="number" id="i-debt"></div>
         </div>
-        <div style="margin-top:20px;">
-            <button class="btn btn-lime" onclick="runDCF()">CALCULATE VALUE</button>
-        </div>
+        <button class="btn btn-lime" style="margin-top: 10px;" onclick="runDCF()">CALCULATE INTRINSIC VALUE</button>
     </div>
   </section>
 
   <section class="section hidden" id="sec-results">
     <div id="vblock" class="vblock">
-      <div id="vh" style="font-size:24px; font-family:var(--serif);"></div>
-      <div id="vsub" style="margin-top:10px; color:var(--text1);"></div>
+      <div id="vh" style="font-size:28px; font-family:var(--serif);"></div>
+      <div id="vsub" style="margin-top:8px; font-size:13px;"></div>
     </div>
 
     <div class="stats-grid" id="stat-grid"></div>
 
-    <div class="panel">
-        <h4 style="color:var(--text2); text-transform:uppercase; font-size:10px; margin-bottom:15px;">Cash Flow Projection (Mid-Year Discounting)</h4>
-        <table class="dt">
-            <thead>
-                <tr><th>Year</th><th>FCF (M)</th><th>Discount Factor</th><th>Present Value</th></tr>
-            </thead>
-            <tbody id="proj-body"></tbody>
-        </table>
+    <div class="panel" style="height: 350px;">
+        <canvas id="dcfChart"></canvas>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+        <div class="panel">
+            <h4 style="color:var(--text2); font-size:10px; text-transform:uppercase; margin-bottom:15px; letter-spacing:1px;">Cash Flow Projection</h4>
+            <div style="overflow-x: auto;">
+              <table class="dt">
+                  <thead><tr><th style="text-align:left;">Year</th><th>FCF (M)</th><th>Discount</th><th>PV (M)</th></tr></thead>
+                  <tbody id="proj-body"></tbody>
+              </table>
+            </div>
+        </div>
+        <div class="panel">
+            <h4 style="color:var(--text2); font-size:10px; text-transform:uppercase; margin-bottom:15px; letter-spacing:1px;">Sensitivity (WACC vs Term. Growth)</h4>
+            <div id="sens-container" style="overflow-x: auto;"></div>
+        </div>
     </div>
   </section>
 </div>
 
 <script>
-// --- CORE LOGIC IMPROVEMENTS ---
+// --- GLOBALS & UTILS ---
+let G = {}; 
+let dcfChart = null;
 
-let G = {}; // Global data store
+setInterval(() => { document.getElementById('tb-clock').textContent = new Date().toUTCString().replace('GMT','UTC'); }, 1000);
 
+const BASE = () => (localStorage.getItem('iv_proxy_url') || 'https://massive-proxy.folkert-brokking.workers.dev').replace(/\/+$/, '');
+
+function stat(type, msg) {
+    const s = document.getElementById('status');
+    s.innerHTML = msg; 
+    s.className = type; 
+    s.classList.remove('hidden');
+}
+
+function hideStat() {
+    document.getElementById('status').classList.add('hidden');
+}
+
+function fM(n) { return n == null || isNaN(n) ? '—' : '$' + Math.round(n).toLocaleString(); }
+function fB(n) { return n == null || isNaN(n) ? '—' : '$' + (n/1e3).toFixed(2) + 'B'; }
+
+// --- API FETCH LOGIC (From original) ---
+async function mget(url) {
+  const r = await fetch(url);
+  if (r.status === 401 || r.status === 403) throw new Error(`HTTP ${r.status} — API key rejected. Check Massive dashboard.`);
+  if (r.status === 404) throw new Error(`HTTP 404 — Ticker not found.`);
+  if (r.status === 429) throw new Error(`HTTP 429 — Rate limit hit. Wait a moment.`);
+  if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+  const data = await r.json();
+  if (data.status === 'ERROR' || data.error) throw new Error(data.message || data.error);
+  return data;
+}
+
+async function fetchMassive(ticker, key) {
+  const qs = `apiKey=${encodeURIComponent(key)}`;
+  const [snapR, detR] = await Promise.all([
+    mget(`${BASE()}/v2/snapshot/locale/us/markets/stocks/tickers/${ticker}?${qs}`),
+    mget(`${BASE()}/v3/reference/tickers/${ticker}?${qs}`)
+  ]);
+
+  const snap = snapR.ticker || {};
+  const det = detR.results || {};
+
+  const prev = snap.prevDay?.c ?? 0;
+  const rawPrice = snap.day?.c ?? snap.lastTrade?.p ?? snap.min?.c ?? (prev > 0 && snap.todaysChange != null ? prev + snap.todaysChange : 0) ?? prev;
+  const price = rawPrice || prev; 
+  
+  const sharesRaw = det.weighted_shares_outstanding || det.share_class_shares_outstanding || 0;
+  const sharesM = sharesRaw / 1e6;
+
+  let fcf = null, netDebt = 0;
+
+  try {
+    const finQS = `tickers=${ticker}&timeframe=annual&sort=period_end.desc&limit=1&${qs}`;
+    const [cfR, balR] = await Promise.all([
+      mget(`${BASE()}/stocks/financials/v1/cash-flow-statements?${finQS}`),
+      mget(`${BASE()}/stocks/financials/v1/balance-sheets?${finQS}`)
+    ]);
+
+    const cf0 = (cfR.results || [])[0] || {};
+    const bal0 = (balR.results || [])[0] || {};
+
+    const opCF = cf0.net_cash_from_operating_activities ?? 0;
+    const capX = cf0.purchase_of_property_plant_and_equipment ?? 0; 
+    fcf = Math.round((opCF + capX) / 1e6); 
+
+    const ltDebt = bal0.long_term_debt_and_capital_lease_obligations ?? 0;
+    const stDebt = bal0.debt_current ?? 0;
+    const cash = bal0.cash_and_equivalents ?? 0;
+    netDebt = Math.round((ltDebt + stDebt - cash) / 1e6);
+
+    if (Math.abs(fcf) > 500000) { fcf = Math.round(fcf / 1e6); netDebt = Math.round(netDebt / 1e6); }
+  } catch(finErr) {
+    console.warn('Massive financials failed, checking FMP fallback...', finErr);
+  }
+
+  // FMP Fallback
+  if (fcf === null) {
+    const fmpKey = localStorage.getItem('iv_fmp_key') || '';
+    if (fmpKey) {
+      try {
+        const fmpStable = 'https://financialmodelingprep.com/stable';
+        const [cfResp, balResp] = await Promise.all([
+          fetch(`${fmpStable}/cash-flow-statement?symbol=${ticker}&period=annual&limit=1&apikey=${fmpKey}`),
+          fetch(`${fmpStable}/balance-sheet-statement?symbol=${ticker}&period=annual&limit=1&apikey=${fmpKey}`)
+        ]);
+        const fmpCF = await cfResp.json();
+        const fmpBal = await balResp.json();
+
+        const cf0 = (Array.isArray(fmpCF) && fmpCF.length > 0 ? fmpCF[0] : null) || {};
+        const bal0 = (Array.isArray(fmpBal) && fmpBal.length > 0 ? fmpBal[0] : null) || {};
+
+        const opCF = cf0.operatingCashFlow ?? 0;
+        const capX = Math.abs(cf0.capitalExpenditure ?? 0);
+        fcf = (opCF !== 0 || capX !== 0) ? Math.round((opCF - capX) / 1e6) : null;
+
+        const totalDebt = bal0.totalDebt ?? 0;
+        const cashFMP = bal0.cashAndCashEquivalents ?? bal0.cashAndShortTermInvestments ?? 0;
+        netDebt = Math.round((totalDebt - cashFMP) / 1e6);
+        
+        if (fcf !== null && Math.abs(fcf) > 500000) { fcf = Math.round(fcf / 1e6); netDebt = Math.round(netDebt / 1e6); }
+      } catch(fmpErr) {
+        console.error('FMP fallback failed:', fmpErr);
+      }
+    }
+  }
+
+  return { ticker, name: det.name || ticker, price, sharesM, fcf, netDebt };
+}
+
+// --- APP FLOW ---
 async function go() {
     const ticker = document.getElementById('inp-ticker').value.trim().toUpperCase();
-    if(!ticker) return;
+    const key = localStorage.getItem('iv_massive_key');
     
-    stat('loading', `Accessing terminals for ${ticker}...`);
+    if(!ticker) return;
+    if(!key) { stat('error', 'API Key missing. Please configure in Settings.'); return; }
+    
+    document.getElementById('sec-ass').classList.add('hidden');
+    document.getElementById('sec-results').classList.add('hidden');
+    stat('loading', `Fetching data for ${ticker}...`);
+    
     try {
-        // Hier gebruiken we jouw bestaande fetchMassive functie logica
-        // Voor de demo vul ik even dummy data in als de API niet reageert
-        G = await fetchMassive(ticker, localStorage.getItem('iv_massive_key'));
-        fillFields(G);
+        G = await fetchMassive(ticker, key); 
+        
+        document.getElementById('i-fcf').value = G.fcf != null ? G.fcf : '';
+        document.getElementById('i-shares').value = G.sharesM ? Math.round(G.sharesM) : '';
+        document.getElementById('i-debt').value = G.netDebt ?? 0;
+        
+        // Dynamische pre-fill groei op basis van logica indien gewenst (hier default waarden)
+        document.getElementById('i-g1').value = 10;
+        document.getElementById('i-g2').value = 5;
+        document.getElementById('i-wacc').value = 9.0;
+        document.getElementById('i-tg').value = 2.5;
+
+        hideStat();
         document.getElementById('sec-ass').classList.remove('hidden');
-        stat('success', `Data for ${ticker} loaded.`);
+        if(G.fcf == null) stat('error', 'Could not fetch Financials automatically. Please fill FCF manually.');
     } catch(e) {
         stat('error', e.message);
     }
 }
 
-function fillFields(d) {
-    document.getElementById('i-fcf').value = d.fcf;
-    document.getElementById('i-shares').value = Math.round(d.sharesM);
-    document.getElementById('i-debt').value = d.netDebt;
-}
-
 function runDCF() {
-    // 1. Inputs ophalen
     const fcf = parseFloat(document.getElementById('i-fcf').value);
+    const g1 = parseFloat(document.getElementById('i-g1').value) / 100;
+    const g2 = parseFloat(document.getElementById('i-g2').value) / 100;
     const wacc = parseFloat(document.getElementById('i-wacc').value) / 100;
     const tg = parseFloat(document.getElementById('i-tg').value) / 100;
     const shares = parseFloat(document.getElementById('i-shares').value);
-    const debt = parseFloat(document.getElementById('i-debt').value);
+    const debt = parseFloat(document.getElementById('i-debt').value) || 0;
     const price = G.price || 0;
 
-    if(wacc <= tg) {
-        alert("WACC moet groter zijn dan Terminal Growth!");
-        return;
+    if ([fcf, wacc, tg, shares].some(isNaN)) {
+        alert("Please ensure all fields are filled properly."); return;
+    }
+    if (wacc <= tg) {
+        alert("WACC must be strictly greater than Terminal Growth rate."); return;
     }
 
-    // 2. Calculatie met Mid-Year Convention
-    let totalPV = 0;
-    let currentFCF = fcf;
-    let
+    let totalPV = 0, currentFCF = fcf, tableHtml = "";
+    const labels = [], fcfData = [], pvData = [];
+
+    for (let y = 1; y <= 10; y++) {
+        currentFCF *= (1 + (y <= 5 ? g1 : g2));
+        const df = 1 / Math.pow(1 + wacc, y - 0.5); // Mid-year convention
+        const pv = currentFCF * df;
+        totalPV += pv;
+        
+        labels.push(`Y${y}`);
+        fcfData.push(Math.round(currentFCF));
+        pvData.push(Math.round(pv));
+        tableHtml += `<tr><td style="text-align:left;">Year ${y}</td><td>${fM(currentFCF)}</td><td>${df.toFixed(3)}</td><td>${fM(pv)}</td></tr>`;
+    }
+
+    const tv = (currentFCF * (1 + tg)) / (wacc - tg);
+    const pvTV = tv / Math.pow(1 + wacc, 10);
+    const ev = totalPV + pvTV;
+    const eqValue = ev - debt;
+    const iv = eqValue / shares;
+
+    renderResults(iv, price, ev, eqValue, tableHtml, totalPV, pvTV);
+    renderChart(labels, fcfData, pvData);
+    renderSensitivity(fcf, g1, g2, wacc, tg, shares, debt, price);
+}
+
+function renderResults(iv, cp, ev, eq, html, pvfcf, pvtv) {
+    const margin = cp > 0 ? ((iv - cp) / cp) * 100 : 0;
+    const cls = margin > 15 ? 'u' : margin < -15 ? 'o' : 'f';
+    
+    document.getElementById('vblock').className = `vblock ${cls}`;
+    
+    let titleText = "FAIRLY VALUED";
+    if(cls === 'u') titleText = "UNDERVALUED";
+    if(cls === 'o') titleText = "OVERVALUED";
+
+    document.getElementById('vh').innerHTML = `${titleText} — $${iv.toFixed(2)}/share`;
+    document.getElementById('vsub').innerHTML = `Current Market Price: $${cp.toFixed(2)} | Margin of Safety: ${margin > 0 ? '+' : ''}${margin.toFixed(1)}%`;
+
+    document.getElementById('stat-grid').innerHTML = `
+        <div class="scard"><div class="lbl">Enterprise Value</div><div class="val">${fB(ev)}</div></div>
+        <div class="scard"><div class="lbl">Equity Value</div><div class="val">${fB(eq)}</div></div>
+        <div class="scard"><div class="lbl">PV of Cash Flows (1-10)</div><div class="val">${fB(pvfcf)}</div></div>
+        <div class="scard"><div class="lbl">PV of Terminal Value</div><div class="val">${fB(pvtv)}</div></div>
+    `;
+    
+    document.getElementById('proj-body').innerHTML = html;
+    document.getElementById('sec-results').classList.remove('hidden');
+    document.getElementById('sec-results').scrollIntoView({behavior:'smooth'});
+}
+
+function renderChart(labels, fcf, pv) {
+    if (dcfChart) dcfChart.destroy();
+    dcfChart = new Chart(document.getElementById('dcfChart'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                { label: 'Projected FCF (M)', data: fcf, backgroundColor: 'rgba(200, 241, 53, 0.2)', borderColor: '#c8f135', borderWidth: 1, order: 2 },
+                { label: 'Present Value (M)', data: pv, type: 'line', borderColor: '#4ade80', backgroundColor: '#4ade80', borderWidth: 2, fill: false, tension: 0.3, order: 1 }
+            ]
+        },
+        options: { 
+            responsive: true, maintainAspectRatio: false, 
+            scales: {
+                y: { grid: { color: '#2a2b28' }, ticks: { color: '#9a9b96', font: { family: 'DM Mono' } } },
+                x: { grid: { display: false }, ticks: { color: '#9a9b96', font: { family: 'DM Mono' } } }
+            },
+            plugins: { legend: { labels: { color: '#e8e9e4', font: { family: 'DM Mono' } } } } 
+        }
+    });
+}
+
+function renderSensitivity(fcf, g1, g2, baseWacc, baseTg, shares, debt, price) {
+    const waccs = [-0.02, -0.01, 0, 0.01, 0.02].map(d => baseWacc + d);
+    const tgs = [-0.01, -0.005, 0, 0.005, 0.01].map(d => baseTg + d);
+    
+    let html = '<table class="stbl"><tr><th>WACC \\ TG</th>' + tgs.map(t => `<th>${(t*100).toFixed(1)}%</th>`).join('') + '</tr>';
+    
+    waccs.forEach(w => {
+        html += `<tr><td style="color:var(--text1); font-weight:500;">${(w*100).toFixed(1)}%</td>`;
+        tgs.forEach(t => {
+            if (w <= t) { html += `<td style="color:var(--text2)">—</td>`; return; }
+            
+            let tempPV = 0, tempFCF = fcf;
+            for(let y=1; y<=10; y++) {
+                tempFCF *= (1 + (y<=5 ? g1 : g2));
+                tempPV += tempFCF / Math.pow(1+w, y-0.5);
+            }
+            const tempTV = (tempFCF * (1+t)) / (w-t);
+            const tempIV = ((tempPV + (tempTV / Math.pow(1+w, 10))) - debt) / shares;
+            
+            const margin = price > 0 ? (tempIV - price) / price : 0;
+            const bg = margin > 0.15 ? 'rgba(74,222,128,.1)' : margin < -0.15 ? 'rgba(248,113,113,.1)' : 'transparent';
+            const color = margin > 0.15 ? 'var(--green)' : margin < -0.15 ? 'var(--red)' : 'var(--text0)';
+            
+            // Highlight current inputs
+            const isBase = Math.abs(w - baseWacc) < 0.001 && Math.abs(t - baseTg) < 0.001;
+            const border = isBase ? 'outline: 1px solid var(--lime); outline-offset: -1px;' : '';
+
+            html += `<td style="background:${bg}; color:${color}; ${border}">$${tempIV.toFixed(2)}</td>`;
+        });
+        html += '</tr>';
+    });
+    document.getElementById('sens-container').innerHTML = html + '</table>';
+}
+</script>
+</body>
+</html>
