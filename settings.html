@@ -298,9 +298,9 @@ async function testFMP() {
   resultEl.style.border = '1px solid rgba(200,241,53,.25)';
   resultEl.textContent = 'Testing…';
   try {
-    const r = await fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?period=annual&limit=1&apikey=${key}`);
+    const r = await fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=AAPL&period=annual&limit=1&apikey=${key}`);
     const data = await r.json();
-    if (Array.isArray(data) && data.length > 0 && data[0].operatingCashFlow) {
+    if (Array.isArray(data) && data.length > 0 && (data[0].operatingCashFlow || data[0].netCashProvidedByOperatingActivities)) {
       resultEl.style.background = 'var(--green-dim)';
       resultEl.style.color = 'var(--green)';
       resultEl.style.border = '1px solid rgba(74,222,128,.25)';
