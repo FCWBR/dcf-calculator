@@ -193,7 +193,7 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
   <div class="topbar-right">
     <span>DCF Model</span>
     <span id="tb-pill" class="ticker-pill hidden"></span>
-    <a href="settings.html" style="color:var(--text2);text-decoration:none;font-size:11px;letter-spacing:.08em;" id="settings-link">⚙ Settings</a>
+    <a href="settings.html" onclick="window.location.href='settings.html';return false;" style="color:var(--text2);text-decoration:none;font-size:11px;letter-spacing:.08em;cursor:pointer;" id="settings-link">⚙ Settings</a>
     <span id="tb-clock"></span>
   </div>
 </nav>
@@ -228,13 +228,13 @@ table.dt .tr-key td:last-child { color: var(--lime); font-weight: 500; }
     <p class="section-desc">Enter a ticker to auto-fetch real-time data from Massive.</p>
 
     <div id="api-warning" class="panel" style="display:none;border-color:rgba(248,113,113,.3);background:var(--red-dim);">
-      <div style="font-size:12px;color:var(--red);">⚠ API keys not configured. <a href="settings.html" style="color:var(--lime);">Go to Settings →</a> to enter your Massive API key and Cloudflare proxy URL before fetching data.</div>
+      <div style="font-size:12px;color:var(--red);">⚠ API keys not configured. <a href="settings.html" onclick="window.location.href='settings.html';return false;" style="color:var(--lime);cursor:pointer;">Go to Settings →</a> to enter your Massive API key and Cloudflare proxy URL before fetching data.</div>
     </div>
 
     <div id="api-status" class="panel" style="display:none;margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
         <div style="display:flex;gap:20px;flex-wrap:wrap;" id="api-status-pills"></div>
-        <a href="settings.html" style="font-size:11px;color:var(--text2);text-decoration:none;letter-spacing:.08em;">⚙ Edit settings</a>
+        <a href="settings.html" onclick="window.location.href='settings.html';return false;" style="font-size:11px;color:var(--lime);text-decoration:none;letter-spacing:.08em;cursor:pointer;">⚙ Edit settings</a>
       </div>
     </div>
 
@@ -432,7 +432,7 @@ async function go() {
   const ticker = document.getElementById('inp-ticker').value.trim().toUpperCase();
   const key    = localStorage.getItem('iv_massive_key') || '';
   if (!ticker) { stat('error', 'Please enter a ticker symbol.'); return; }
-  if (!key)    { stat('error', '⚠ No Massive API key found. <a href="settings.html" style="color:var(--lime)">Go to Settings →</a>'); return; }
+  if (!key)    { stat('error', '⚠ No Massive API key found. <a href="settings.html" onclick="window.location.href='settings.html';return false;" style="color:var(--lime);cursor:pointer;">Go to Settings →</a>'); return; }
   KEY = key;
 
   hide('sec-ass'); hide('sec-results');
