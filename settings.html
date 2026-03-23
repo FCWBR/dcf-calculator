@@ -284,14 +284,49 @@ function maskKey(k) {
 async function testFMP() {
   const key = document.getElementById('fmp-key').value.trim() || localStorage.getItem('iv_fmp_key') || '';
   const resultEl = document.getElementById('fmp-test-result');
+  resultEl.style.display = 'block';
+
   if (!key) {
-    resultEl.style.display = 'block';
-    resultEl.style.background = 'var(--red-dim)';
-    resultEl.style.color = 'var(--red)';
-    resultEl.style.border = '1px solid rgba(248,113,113,.25)';
+    resultEl.style.cssText = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.25);';
     resultEl.textContent = '⚠ No FMP key entered.';
     return;
   }
+
+  resultEl.style.cssText = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--lime-dim);color:var(--lime);border:1px solid rgba(200,241,53,.25);';
+  resultEl.textContent = 'Testing…';
+
+  try {
+    const url = `https://financialmodelingprep.com/stable/cash-flow-statement?symbol=AAPL&period=annual&limit=1&apikey=${key}`;
+    const r = await fetch(url);
+    const raw = await r.text();
+    console.log('FMP HTTP status:', r.status);
+    console.log('FMP raw response:', raw.slice(0, 400));
+
+    let data;
+    try { data = JSON.parse(raw); } catch(e) { data = null; }
+
+    const ok = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.25);';
+    const err = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.25);';
+
+    if (!r.ok) {
+      resultEl.style.cssText = err;
+      resultEl.textContent = `⚠ HTTP ${r.status} — ${raw.slice(0, 120)}`;
+    } else if (data && (data['Error Message'] || data.message)) {
+      resultEl.style.cssText = err;
+      resultEl.textContent = `⚠ FMP says: ${data['Error Message'] || data.message}`;
+    } else if (Array.isArray(data) && data.length > 0 && data[0].operatingCashFlow) {
+      resultEl.style.cssText = ok;
+      resultEl.textContent = `✓ FMP key works! AAPL operating cash flow: $${(data[0].operatingCashFlow/1e9).toFixed(1)}B`;
+    } else {
+      resultEl.style.cssText = err;
+      resultEl.textContent = `⚠ Unexpected response: ${raw.slice(0, 200)}`;
+    }
+  } catch(e) {
+    const err = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.25);';
+    resultEl.style.cssText = err;
+    resultEl.textContent = `⚠ Network error: ${e.message}`;
+  }
+}
   resultEl.style.display = 'block';
   resultEl.style.background = 'var(--lime-dim)';
   resultEl.style.color = 'var(--lime)';
