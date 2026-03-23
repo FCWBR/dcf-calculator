@@ -154,6 +154,35 @@ input::placeholder { color: var(--text2); }
     </div>
   </section>
 
+  <!-- yfinance local server -->
+  <section class="section">
+    <div class="section-header"><span class="section-sq"></span><span class="section-title">yfinance Local Server</span></div>
+    <hr class="section-rule"/>
+    <p class="section-desc">
+      Run <code>server.py</code> locally to enable <b style="color:var(--text0)">yfinance</b> as your primary data source — completely free, no API key required.
+      It provides the fullest dataset: price, EPS (TTM &amp; forward), book value, dividends, FCF, net debt, sector, P/E and more.
+      When configured, the app will use yfinance first and fall back to Massive &amp; FMP only if needed.<br><br>
+      <b style="color:var(--text0)">Start the server:</b><br>
+      <code>pip install -r requirements.txt</code><br>
+      <code>python server.py</code><br><br>
+      Then enter the URL below (default: <code>http://localhost:5000</code>).
+    </p>
+    <div class="panel">
+      <div class="field">
+        <label>yfinance Server URL</label>
+        <div class="field-row">
+          <input type="text" id="yf-url" placeholder="http://localhost:5000" autocomplete="off"/>
+          <button class="btn btn-ghost" onclick="testYF()">test</button>
+        </div>
+        <div class="field-hint" style="margin-top:4px;">
+          Leave blank to use Massive + FMP only. When running, the server serves on <code>http://localhost:5000</code> by default.
+        </div>
+        <div class="status-row" id="yf-status"></div>
+        <div id="yf-test-result" style="font-size:11px;margin-top:8px;display:none;padding:8px 12px;border-radius:4px;"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- FMP -->
   <section class="section">
     <div class="section-header"><span class="section-sq"></span><span class="section-title">Financial Modeling Prep</span></div>
@@ -217,6 +246,7 @@ const fields = {
   'massive-key': 'iv_massive_key',
   'proxy-url':   'iv_proxy_url',
   'fmp-key':     'iv_fmp_key',
+  'yf-url':      'iv_yf_url',
 };
 
 // ── Load saved values on page open ──
@@ -261,17 +291,20 @@ function renderStatus() {
   const massive = localStorage.getItem('iv_massive_key') || '';
   const proxy   = localStorage.getItem('iv_proxy_url')   || '';
   const fmp     = localStorage.getItem('iv_fmp_key')     || '';
+  const yfUrl   = localStorage.getItem('iv_yf_url')      || '';
 
   setDot('massive-status', !!massive, massive ? 'API key configured' : 'Not set');
   setDot('proxy-status',   !!proxy,   proxy   ? proxy.replace('https://','') : 'Not set — required for browser use');
   setDot('fmp-status',     !!fmp,     fmp     ? 'API key configured' : 'Not set — FCF and net debt must be entered manually');
+  setDot('yf-status',      !!yfUrl,   yfUrl   ? yfUrl : 'Not configured — free, no API key needed');
 
-  const allGood = !!(massive && proxy);
+  const allGood = !!(massive && proxy) || !!yfUrl;
   const rows = [
-    { label: 'Massive API key',  ok: !!massive, note: massive ? maskKey(massive) : 'Missing' },
-    { label: 'Cloudflare proxy', ok: !!proxy,   note: proxy   ? proxy.replace('https://','') : 'Missing — required' },
-    { label: 'FMP fallback key', ok: !!fmp,     note: fmp     ? maskKey(fmp) : 'Not set — optional but recommended' },
-    { label: 'Overall status',   ok: allGood,   note: allGood ? 'Ready to use' : 'Configure Massive key and proxy to continue' },
+    { label: 'yfinance server',  ok: !!yfUrl,   note: yfUrl   ? yfUrl : 'Not configured (run server.py)' },
+    { label: 'Massive API key',  ok: !!massive, note: massive ? maskKey(massive) : 'Not set — optional if using yfinance' },
+    { label: 'Cloudflare proxy', ok: !!proxy,   note: proxy   ? proxy.replace('https://','') : 'Not set — needed for Massive' },
+    { label: 'FMP fallback key', ok: !!fmp,     note: fmp     ? maskKey(fmp) : 'Not set — optional' },
+    { label: 'Overall status',   ok: allGood,   note: allGood ? 'Ready to use' : 'Configure yfinance server or Massive key + proxy' },
   ];
 
   document.getElementById('status-overview').innerHTML = rows.map((r, i) => `
@@ -293,6 +326,46 @@ function setDot(id, ok, text) {
 function maskKey(k) {
   if (!k || k.length <= 8) return '••••••••';
   return k.slice(0, 4) + '••••••••' + k.slice(-4);
+}
+
+// ── Test yfinance server ──
+async function testYF() {
+  const url   = (document.getElementById('yf-url').value.trim() || localStorage.getItem('iv_yf_url') || '').replace(/\/+$/, '');
+  const resEl = document.getElementById('yf-test-result');
+  const styleOk  = 'display:block;padding:8px 12px;border-radius:4px;background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.25);';
+  const styleErr = 'display:block;padding:8px 12px;border-radius:4px;background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.25);';
+  const stylePend = 'display:block;padding:8px 12px;border-radius:4px;background:var(--lime-dim);color:var(--lime);border:1px solid rgba(200,241,53,.25);';
+
+  if (!url) { resEl.style.cssText = styleErr; resEl.textContent = '⚠ Enter a server URL first.'; return; }
+
+  resEl.style.cssText = stylePend;
+  resEl.textContent = 'Connecting to yfinance server…';
+
+  try {
+    // Test health endpoint, then fetch a known ticker (AAPL)
+    const [hResp, qResp] = await Promise.all([
+      fetch(url + '/health', { signal: AbortSignal.timeout(5000) }),
+      fetch(url + '/quote/AAPL', { signal: AbortSignal.timeout(8000) }),
+    ]);
+    const h = await hResp.json();
+    const q = await qResp.json();
+
+    if (h.status === 'ok' && q.price > 0) {
+      resEl.style.cssText = styleOk;
+      resEl.textContent = `✓ Connected! AAPL: $${q.price.toFixed(2)} | EPS: $${q.epsTtm.toFixed(2)} | BVPS: $${q.bvps.toFixed(2)} | FCF/share: $${q.fcfPerShare.toFixed(2)}`;
+      setDot('yf-status', true, url);
+    } else if (q.error) {
+      resEl.style.cssText = styleErr;
+      resEl.textContent = '⚠ Server error: ' + q.error;
+    } else {
+      resEl.style.cssText = styleErr;
+      resEl.textContent = '⚠ Unexpected response from server.';
+    }
+  } catch(e) {
+    resEl.style.cssText = styleErr;
+    resEl.textContent = `⚠ Cannot reach ${url} — is server.py running? (${e.message})`;
+    setDot('yf-status', false, 'Unreachable');
+  }
 }
 
 // ── Test FMP key ──
