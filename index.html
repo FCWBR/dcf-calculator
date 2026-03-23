@@ -985,15 +985,11 @@ function fillAss(d) {
   document.getElementById('i-shares').value = d.sharesM ? Math.round(d.sharesM) : '';
   document.getElementById('i-debt').value   = d.netDebt ?? 0;
 
-  // Growth defaults — cap at 20% for conservative estimate
-  const g1 = Math.min(Math.max(isNaN(d.estG) ? 8 : d.estG, -20), 20);
-  const g2 = Math.min(Math.max(g1 * 0.55, -10), 15);
-  // Discount rate = 10Y Treasury + 3% equity risk premium (minimum 7%)
-  const discRate = Math.max(7.0, parseFloat((TREASURY_RATE + 3.0).toFixed(1)));
-  sl('g1',   g1.toFixed(1));
-  sl('g2',   g2.toFixed(1));
-  sl('tg',   '2.5');
-  sl('wacc', discRate.toFixed(1));
+  // Conservative flat defaults — aligned with standard valuation methodology
+  sl('g1',   '5.0');   // 5% FCF growth Y1-5 (conservative flat estimate)
+  sl('g2',   '5.0');   // 5% FCF growth Y6-10 (same — no taper assumed)
+  sl('tg',   '2.5');   // 2.5% terminal growth ≈ long-run GDP
+  sl('wacc', '9.0');   // 9% discount rate — standard equity cost of capital
   sl('mos',  '25', 0);
 
   if (d.fcfSource) { show('fcf-src'); } else { hide('fcf-src'); }
@@ -1029,11 +1025,9 @@ function fillAss(d) {
     hide('div-src');
   }
 
-  // Dividend growth default 3%
-  // P/E target: use trailing PE from API if available (mirrors Python: info.get('trailingPE', 15))
-  sl('gd', '3.0');
-  const peVal = (d.peTarget != null && d.peTarget > 0 && d.peTarget < 100) ? d.peTarget.toFixed(1) : '15.0';
-  sl('pe', peVal);
+  // Dividend growth 5%, P/E target 15× (Graham's conservative fair-value ceiling)
+  sl('gd', '5.0');
+  sl('pe', '15.0');
 
   console.log('Inputs — FCF(M):', d.fcf, '| Shares(M):', Math.round(d.sharesM),
     '| Net debt(M):', d.netDebt, '| EPS:', d.eps, '| BVPS:', d.bvps, '| Div:', d.div0, '| Price:', d.price);
@@ -1051,9 +1045,8 @@ function fillAss(d) {
 function resetAss() {
   if (Object.keys(G).length) fillAss(G);
   else {
-    const r = Math.max(7.0, parseFloat((TREASURY_RATE+3).toFixed(1)));
-    sl('g1','8.0'); sl('g2','4.4'); sl('tg','2.5'); sl('wacc', r.toFixed(1)); sl('mos','25',0);
-    sl('gd','3.0'); sl('pe','15.0');
+    sl('g1','5.0'); sl('g2','5.0'); sl('tg','2.5'); sl('wacc','9.0'); sl('mos','25',0);
+    sl('gd','5.0'); sl('pe','15.0');
   }
 }
 
