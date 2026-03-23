@@ -1081,7 +1081,7 @@ function renderGraham(eps, epsG, gmos, cp) {
   const badgeEl   = document.getElementById('graham-verdict-badge');
   const liveEl    = document.getElementById('g-aaa-live');
 
-  if (liveEl) liveEl.textContent = 'AAA bond yield (Moody's): ' + AAA_RATE.toFixed(2) + '%';
+  if (liveEl) liveEl.textContent = "AAA bond yield (Moody\u2019s): " + AAA_RATE.toFixed(2) + '%';
 
   if (!eps || isNaN(eps) || eps <= 0) {
     naEl.style.display  = 'block';
