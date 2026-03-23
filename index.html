@@ -465,17 +465,23 @@ async function fetchMassive(ticker, key) {
   const det  = detR.results  || {};
 
   // Price from snapshot — day close, fallback to lastTrade, fallback to prevDay close
-  const price  = snap.day?.c     ?? snap.lastTrade?.p ?? snap.prevDay?.c ?? 0;
+  // Price: try day close, last trade, prev day close, or derive from todaysChange
+  const price  = snap.day?.c ?? snap.lastTrade?.p ?? snap.prevDay?.c ?? 0;
   const prev   = snap.prevDay?.c ?? 0;
-  const chg    = price - prev;
-  const chgP   = prev ? (chg / prev) * 100 : 0;
+  // Use Massive's pre-calculated change fields if available (more reliable)
+  const chg    = snap.todaysChange    ?? (price - prev);
+  const chgP   = snap.todaysChangePerc ?? (prev ? (chg / prev) * 100 : 0);
 
   // Shares from reference (in actual shares — convert to millions)
   const sharesRaw = det.weighted_shares_outstanding
                  || det.share_class_shares_outstanding
                  || 0;
+  // sharesRaw is in actual shares (e.g. 16,000,000,000 for AAPL)
+  // Divide by 1e6 to get millions (e.g. 16,000M for AAPL)
   const sharesM   = sharesRaw / 1e6;
   const mcapB     = det.market_cap ? det.market_cap / 1e9 : (price * sharesM / 1e3);
+  // Sanity log
+  console.log('Shares raw:', sharesRaw, '| Shares (M):', sharesM, '| Price:', price, '| Market cap (B):', mcapB);
 
   // Phase 2: financials (requires Developer tier+)
   let fcf = null, netDebt = 0, revenue = null, ebitda = null, eps = null;
@@ -642,6 +648,7 @@ function fillAss(d) {
   document.getElementById('i-fcf').value    = d.fcf != null ? d.fcf : '';
   document.getElementById('i-shares').value = d.sharesM ? Math.round(d.sharesM) : '';
   document.getElementById('i-debt').value   = d.netDebt ?? 0;
+  console.log('DCF inputs — FCF (M):', d.fcf, '| Shares (M):', Math.round(d.sharesM), '| Net debt (M):', d.netDebt, '| Price:', d.price);
 
   const g1 = Math.min(Math.max(isNaN(d.estG) ? 8 : d.estG, -20), 60);
   const g2 = Math.min(Math.max(g1 * 0.6, -10), 40);
