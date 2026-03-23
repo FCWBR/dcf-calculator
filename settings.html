@@ -168,8 +168,10 @@ input::placeholder { color: var(--text2); }
         <div class="field-row">
           <input type="password" id="fmp-key" placeholder="your-fmp-api-key" autocomplete="off"/>
           <button class="btn btn-ghost" onclick="toggleVis('fmp-key', this)">show</button>
+          <button class="btn btn-ghost" onclick="testFMP()">test</button>
         </div>
         <div class="status-row" id="fmp-status"></div>
+        <div id="fmp-test-result" style="font-size:11px;margin-top:8px;display:none;padding:8px 12px;border-radius:4px;"></div>
       </div>
     </div>
   </section>
@@ -276,6 +278,50 @@ function setStatus(id, ok, text) {
 function maskKey(k) {
   if (k.length <= 8) return '••••••••';
   return k.slice(0, 4) + '••••••••' + k.slice(-4);
+}
+
+// ── Test FMP key ──
+async function testFMP() {
+  const key = document.getElementById('fmp-key').value.trim() || localStorage.getItem('iv_fmp_key') || '';
+  const resultEl = document.getElementById('fmp-test-result');
+  if (!key) {
+    resultEl.style.display = 'block';
+    resultEl.style.background = 'var(--red-dim)';
+    resultEl.style.color = 'var(--red)';
+    resultEl.style.border = '1px solid rgba(248,113,113,.25)';
+    resultEl.textContent = '⚠ No FMP key entered.';
+    return;
+  }
+  resultEl.style.display = 'block';
+  resultEl.style.background = 'var(--lime-dim)';
+  resultEl.style.color = 'var(--lime)';
+  resultEl.style.border = '1px solid rgba(200,241,53,.25)';
+  resultEl.textContent = 'Testing…';
+  try {
+    const r = await fetch(`https://financialmodelingprep.com/api/v3/cash-flow-statement/AAPL?limit=1&apikey=${key}`);
+    const data = await r.json();
+    if (Array.isArray(data) && data.length > 0 && data[0].operatingCashFlow) {
+      resultEl.style.background = 'var(--green-dim)';
+      resultEl.style.color = 'var(--green)';
+      resultEl.style.border = '1px solid rgba(74,222,128,.25)';
+      resultEl.textContent = `✓ FMP key works! AAPL operating cash flow: $${(data[0].operatingCashFlow/1e9).toFixed(1)}B`;
+    } else if (data['Error Message'] || (Array.isArray(data) && data.length === 0)) {
+      resultEl.style.background = 'var(--red-dim)';
+      resultEl.style.color = 'var(--red)';
+      resultEl.style.border = '1px solid rgba(248,113,113,.25)';
+      resultEl.textContent = '⚠ Key rejected or no data returned. Check your FMP key.';
+    } else {
+      resultEl.style.background = 'var(--red-dim)';
+      resultEl.style.color = 'var(--red)';
+      resultEl.style.border = '1px solid rgba(248,113,113,.25)';
+      resultEl.textContent = '⚠ Unexpected response: ' + JSON.stringify(data).slice(0, 100);
+    }
+  } catch(e) {
+    resultEl.style.background = 'var(--red-dim)';
+    resultEl.style.color = 'var(--red)';
+    resultEl.style.border = '1px solid rgba(248,113,113,.25)';
+    resultEl.textContent = '⚠ Request failed: ' + e.message;
+  }
 }
 </script>
 </body>
