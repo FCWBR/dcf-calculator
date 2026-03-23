@@ -496,6 +496,7 @@ setInterval(() => {
 // ── Keys — loaded from localStorage (set via settings.html) ──
 let KEY     = localStorage.getItem('iv_massive_key') || '';
 let FMP_KEY = localStorage.getItem('iv_fmp_key')     || '';
+const YF_URL = () => (localStorage.getItem('iv_yf_url') || '').replace(/\/+$/, '');
 
 // ── Proxy base URL ──
 const BASE = () => (localStorage.getItem('iv_proxy_url') || 'https://massive-proxy.folkert-brokking.workers.dev').replace(/\/+$/, '');
@@ -557,7 +558,8 @@ function renderApiStatus() {
   const statusBar  = document.getElementById('api-status');
   const pills      = document.getElementById('api-status-pills');
 
-  if (!massiveKey) {
+  const yfUrl2 = localStorage.getItem('iv_yf_url') || '';
+  if (!massiveKey && !yfUrl2) {
     warning.style.display = 'block';
     statusBar.style.display = 'none';
     return;
@@ -572,10 +574,12 @@ function renderApiStatus() {
       ${note ? `<span style="color:var(--text2);">${note}</span>` : ''}
     </div>`;
 
+  const yfUrl = localStorage.getItem('iv_yf_url') || '';
   pills.innerHTML =
-    mkPill('Massive API', !!massiveKey, massiveKey ? '✓ configured' : 'missing') +
-    mkPill('Cloudflare proxy', !!proxyUrl, proxyUrl ? proxyUrl.replace('https://','') : 'missing') +
-    mkPill('FMP fallback', !!fmpKey, fmpKey ? '✓ configured' : 'not set — manual FCF input required');
+    mkPill('yfinance server', !!yfUrl, yfUrl ? yfUrl : 'not running — see Settings') +
+    mkPill('Massive API', !!massiveKey, massiveKey ? '✓ configured' : 'not set') +
+    mkPill('Cloudflare proxy', !!proxyUrl, proxyUrl ? proxyUrl.replace('https://','') : 'not set') +
+    mkPill('FMP fallback', !!fmpKey, fmpKey ? '✓ configured' : 'not set');
 }
 renderApiStatus();
 
@@ -606,25 +610,106 @@ async function go() {
   const ticker = document.getElementById('inp-ticker').value.trim().toUpperCase();
   const key    = localStorage.getItem('iv_massive_key') || '';
   if (!ticker) { stat('error', 'Please enter a ticker symbol.'); return; }
-  if (!key)    { stat('error', '⚠ No Massive API key. Go to <a href="settings.html" style="color:var(--lime)">Settings →</a>'); return; }
+  const yfUrlNow = YF_URL();
+  if (!yfUrlNow && !key) {
+    stat('error', '⚠ No data source configured. Go to <a href="settings.html" style="color:var(--lime)">Settings →</a> to set up the yfinance server or a Massive API key.');
+    return;
+  }
   KEY = key;
 
   hide('sec-ass'); hide('sec-results'); hide('blended-panel');
   stat('loading', `Fetching ${ticker} from Massive…`);
 
   try {
-    G = await fetchMassive(ticker, key);
+    const yfUrl = YF_URL();
+    if (yfUrl) {
+      // yfinance server configured — use as primary source
+      stat('loading', `Fetching ${ticker} from yfinance server…`);
+      try {
+        G = await fetchYFinance(ticker, yfUrl);
+        // If yfinance succeeded but Massive key is also set, try to enrich price/exchange data
+        if (key && G.price === 0) {
+          try {
+            const massiveData = await fetchMassive(ticker, key);
+            G.price = massiveData.price || G.price;
+            G.chg   = massiveData.chg   ?? G.chg;
+            G.chgP  = massiveData.chgP  ?? G.chgP;
+            G.exch  = massiveData.exch  || G.exch;
+          } catch(_) {} // silently ignore if Massive enrichment fails
+        }
+      } catch(yfErr) {
+        console.warn('yfinance server failed:', yfErr.message, '— falling back to Massive');
+        if (!key) throw new Error('yfinance server unreachable and no Massive key configured.');
+        stat('loading', `yfinance unavailable — fetching ${ticker} from Massive…`);
+        G = await fetchMassive(ticker, key);
+      }
+    } else {
+      // No yfinance server — use Massive as before
+      G = await fetchMassive(ticker, key);
+    }
     updateHero(G);
     fillAss(G);
     show('sec-ass');
     nostat();
     document.getElementById('sec-ass').scrollIntoView({ behavior:'smooth', block:'start' });
   } catch(e) {
-    stat('error', '⚠ ' + (e.message || 'Fetch failed. Check your API key, ticker symbol, and plan tier.'));
+    stat('error', '⚠ ' + (e.message || 'Fetch failed. Check your data sources in Settings.'));
   }
 }
 
 
+
+// ── Fetch from local yfinance server (server.py) ──
+async function fetchYFinance(ticker, yfUrl) {
+  const url = `${yfUrl}/quote/${encodeURIComponent(ticker)}`;
+  const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  if (!resp.ok) throw new Error(`yfinance server HTTP ${resp.status}`);
+  const d = await resp.json();
+  if (d.error) throw new Error(`yfinance: ${d.error}`);
+
+  const shares   = d.sharesOutstanding || 1;
+  const sharesM  = shares / 1e6;
+  const price    = d.price || 0;
+  const mcapB    = d.marketCap ? d.marketCap / 1e9 : price * sharesM / 1e3;
+
+  // FCF in millions (server returns raw dollars)
+  let fcfM = d.freeCashflow ? Math.round(d.freeCashflow / 1e6) : null;
+  if (fcfM !== null && Math.abs(fcfM) > 500000) fcfM = Math.round(fcfM / 1e6); // extra sanity
+
+  // Net debt in millions
+  const netDebtM = d.netDebt ? Math.round(d.netDebt / 1e6) : 0;
+
+  // FCF historical CAGR → estG (already in fraction from server, convert to %)
+  const estG = typeof d.fcfCagr === 'number' ? d.fcfCagr * 100 : 8;
+
+  console.log('[yfinance]', ticker, '| price:', price, '| EPS:', d.epsTtm,
+    '| BVPS:', d.bvps, '| FCF(M):', fcfM, '| NetDebt(M):', netDebtM,
+    '| Div:', d.dividendRate, '| Sector:', d.sector);
+
+  return {
+    ticker,
+    name:      d.name     || ticker,
+    price,
+    chg:       0,
+    chgP:      0,
+    mcapB,
+    sharesM,
+    exch:      d.exchange || '',
+    sector:    d.sector   || '',
+    desc:      '',
+    fcf:       fcfM,
+    netDebt:   netDebtM,
+    revenue:   null,
+    ebitda:    null,
+    eps:       d.epsTtm   || null,
+    epsFwd:    d.epsFwd   || null,
+    bvps:      d.bvps     > 0 ? d.bvps  : null,
+    div0:      d.dividendRate > 0 ? d.dividendRate : null,
+    peTarget:  d.trailingPE > 0 && d.trailingPE < 200 ? d.trailingPE : null,
+    estG,
+    fcfSource: fcfM !== null,
+  };
+}
 
 async function fetchMassive(ticker, key) {
   const qs = `apiKey=${encodeURIComponent(key)}`;
