@@ -554,13 +554,14 @@ async function fetchMassive(ticker, key) {
     if (fcfHist.length >= 2 && fcfHist[0] !== 0) {
       estG = ((fcfHist[fcfHist.length-1] / fcfHist[0]) ** (1 / (fcfHist.length-1)) - 1) * 100;
     }
-    // Sanity check: if FCF > 500,000 it's probably raw dollars not millions
+    // Sanity check: if |FCF| > 500,000 it's probably raw dollars not millions
     if (Math.abs(fcf) > 500000) {
       console.warn('Massive FCF looks like raw dollars, dividing by 1e6 again:', fcf);
       fcf = Math.round(fcf / 1e6);
       netDebt = Math.round(netDebt / 1e6);
     }
-    fcfSource = fcf !== 0;
+    // fcfSource = true as long as we got a number (even negative — biotech stocks burn cash)
+    fcfSource = fcf !== null;
 
   } catch(finErr) {
     console.warn('Massive financials unavailable:', finErr.message);
@@ -596,7 +597,9 @@ async function fetchMassive(ticker, key) {
         const opCF = cf0.operatingCashFlow ?? 0;
         const capX = Math.abs(cf0.capitalExpenditure ?? 0);
         const rawFcf = opCF - capX;
-        fcf = rawFcf !== 0 ? Math.round(rawFcf / 1e6) : null;
+        // Allow zero and negative FCF — cash-burning companies (biotech etc.) have negative FCF
+        // Only set null if there was genuinely no data at all
+        fcf = (opCF !== 0 || capX !== 0) ? Math.round(rawFcf / 1e6) : null;
 
         // Net Debt = totalDebt - cash
         const totalDebt = bal0.totalDebt ?? 0;
@@ -615,13 +618,14 @@ async function fetchMassive(ticker, key) {
           estG = ((fcfHistFMP[fcfHistFMP.length-1] / fcfHistFMP[0]) ** (1 / (fcfHistFMP.length-1)) - 1) * 100;
         }
 
-        // Sanity check: if FCF > 500,000 it's probably in raw dollars not millions
+        // Sanity check: if |FCF| > 500,000 it's probably in raw dollars not millions
         if (fcf !== null && Math.abs(fcf) > 500000) {
           console.warn('FCF looks like raw dollars, dividing by 1e6 again:', fcf);
           fcf = Math.round(fcf / 1e6);
           netDebt = Math.round(netDebt / 1e6);
         }
-        fcfSource = fcf !== null && fcf !== 0;
+        // Allow negative FCF — cash-burning companies (biotech, pre-revenue) have negative FCF
+        fcfSource = fcf !== null;
         console.log('FMP result — FCF:', fcf, 'M | Net debt:', netDebt, 'M | opCF:', opCF, 'capX:', capX);
       } catch(fmpErr) {
         console.error('FMP fallback failed:', fmpErr.message);
@@ -697,10 +701,10 @@ function fillAss(d) {
   if (d.fcfSource) { show('fcf-src'); } else { hide('fcf-src'); }
 
   const descEl = document.getElementById('ass-desc');
-  if (d.fcfSource) {
-    descEl.textContent = `Assumptions prefilled for ${d.ticker} (annual, most recent). Adjust as needed.`;
-  } else if (d.fcf !== null) {
-    descEl.textContent = `Financials loaded via FMP fallback for ${d.ticker}. Adjust assumptions as needed.`;
+  if (d.fcf !== null) {
+    const src = d.fcfSource ? 'Massive' : 'FMP';
+    const note = d.fcf < 0 ? ' Note: negative FCF — this company is currently burning cash.' : '';
+    descEl.textContent = `Financials prefilled from ${src} for ${d.ticker} (annual, most recent). Adjust as needed.${note}`;
   } else {
     descEl.innerHTML = `Could not load financial statements automatically. Make sure your <a href="settings.html" style="color:var(--lime)">FMP key is saved in Settings</a>, or enter Base FCF and Net Debt manually.`;
   }
