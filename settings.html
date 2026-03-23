@@ -208,21 +208,18 @@ input::placeholder { color: var(--text2); }
       const pad = n => String(n).padStart(2,'0');
       el.textContent = `v${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
       el.title = 'Deployed: ' + d.toUTCString();
-    } else {
-      el.textContent = 'v—';
-    }
-  } catch(e) {
-    document.getElementById('tb-version').textContent = 'v—';
-  }
+    } else { el.textContent = 'v—'; }
+  } catch(e) { document.getElementById('tb-version').textContent = 'v—'; }
 })();
 
-// ── Load saved values ──
+// ── Field map ──
 const fields = {
   'massive-key': 'iv_massive_key',
   'proxy-url':   'iv_proxy_url',
   'fmp-key':     'iv_fmp_key',
 };
 
+// ── Load saved values on page open ──
 Object.entries(fields).forEach(([id, storageKey]) => {
   const val = localStorage.getItem(storageKey) || '';
   if (val) document.getElementById(id).value = val;
@@ -230,15 +227,15 @@ Object.entries(fields).forEach(([id, storageKey]) => {
 
 renderStatus();
 
-// ── Toggle visibility ──
+// ── Toggle key visibility ──
 function toggleVis(id, btn) {
   const el = document.getElementById(id);
-  const show = el.type === 'password';
-  el.type = show ? 'text' : 'password';
-  btn.textContent = show ? 'hide' : 'show';
+  const showing = el.type === 'password';
+  el.type = showing ? 'text' : 'password';
+  btn.textContent = showing ? 'hide' : 'show';
 }
 
-// ── Save all ──
+// ── Save all keys ──
 function saveAll() {
   Object.entries(fields).forEach(([id, storageKey]) => {
     const val = document.getElementById(id).value.trim().replace(/\/+$/, '');
@@ -251,7 +248,7 @@ function saveAll() {
   setTimeout(() => { banner.style.display = 'none'; }, 3000);
 }
 
-// ── Clear all ──
+// ── Clear all keys ──
 function clearAll() {
   if (!confirm('Clear all saved API keys from this browser?')) return;
   Object.values(fields).forEach(k => localStorage.removeItem(k));
@@ -259,44 +256,42 @@ function clearAll() {
   renderStatus();
 }
 
-// ── Render status ──
+// ── Render status dots and overview panel ──
 function renderStatus() {
   const massive = localStorage.getItem('iv_massive_key') || '';
   const proxy   = localStorage.getItem('iv_proxy_url')   || '';
   const fmp     = localStorage.getItem('iv_fmp_key')     || '';
 
-  // Inline status dots
-  setStatus('massive-status', massive, massive ? 'API key configured' : 'Not set');
-  setStatus('proxy-status',   proxy,   proxy   ? proxy.replace('https://','') : 'Not set — required for browser use');
-  setStatus('fmp-status',     fmp,     fmp     ? 'API key configured' : 'Not set — FCF and net debt must be entered manually');
+  setDot('massive-status', !!massive, massive ? 'API key configured' : 'Not set');
+  setDot('proxy-status',   !!proxy,   proxy   ? proxy.replace('https://','') : 'Not set — required for browser use');
+  setDot('fmp-status',     !!fmp,     fmp     ? 'API key configured' : 'Not set — FCF and net debt must be entered manually');
 
-  // Overview panel
-  const allGood = massive && proxy;
+  const allGood = !!(massive && proxy);
   const rows = [
-    { label: 'Massive API key',      ok: !!massive, note: massive ? maskKey(massive) : 'Missing' },
-    { label: 'Cloudflare proxy',     ok: !!proxy,   note: proxy   ? proxy.replace('https://','') : 'Missing — required' },
-    { label: 'FMP fallback key',     ok: !!fmp,     note: fmp     ? maskKey(fmp) : 'Not set — optional but recommended' },
-    { label: 'Overall status',       ok: allGood,   note: allGood ? 'Ready to use' : 'Configure Massive key and proxy to continue' },
+    { label: 'Massive API key',  ok: !!massive, note: massive ? maskKey(massive) : 'Missing' },
+    { label: 'Cloudflare proxy', ok: !!proxy,   note: proxy   ? proxy.replace('https://','') : 'Missing — required' },
+    { label: 'FMP fallback key', ok: !!fmp,     note: fmp     ? maskKey(fmp) : 'Not set — optional but recommended' },
+    { label: 'Overall status',   ok: allGood,   note: allGood ? 'Ready to use' : 'Configure Massive key and proxy to continue' },
   ];
 
-  document.getElementById('status-overview').innerHTML = rows.map(r => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+  document.getElementById('status-overview').innerHTML = rows.map((r, i) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;${i < rows.length-1 ? 'border-bottom:1px solid var(--border);' : ''}">
       <div style="display:flex;align-items:center;gap:10px;">
-        <span class="dot ${r.ok ? 'ok' : 'warn'}"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:${r.ok ? 'var(--lime)' : 'var(--text2)'};flex-shrink:0;display:inline-block;"></span>
         <span style="color:var(--text1);font-size:12px;">${r.label}</span>
       </div>
       <span style="font-size:11px;color:${r.ok ? 'var(--text0)' : 'var(--text2)'};">${r.note}</span>
-    </div>
-  `).join('').replace(/<div[^>]*>[\s\S]*?<\/div>\s*$/, s => s.replace('border-bottom:1px solid var(--border)', 'border-bottom:none'));
+    </div>`).join('');
 }
 
-function setStatus(id, ok, text) {
-  document.getElementById(id).innerHTML =
-    `<span class="dot ${ok ? 'ok' : 'warn'}"></span><span style="color:${ok?'var(--text0)':'var(--text2)'};">${text}</span>`;
+function setDot(id, ok, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${ok ? 'var(--lime)' : 'var(--text2)'};flex-shrink:0;display:inline-block;"></span><span style="margin-left:8px;color:${ok ? 'var(--text0)' : 'var(--text2)'};">${text}</span>`;
 }
 
 function maskKey(k) {
-  if (k.length <= 8) return '••••••••';
+  if (!k || k.length <= 8) return '••••••••';
   return k.slice(0, 4) + '••••••••' + k.slice(-4);
 }
 
@@ -304,78 +299,45 @@ function maskKey(k) {
 async function testFMP() {
   const key = document.getElementById('fmp-key').value.trim() || localStorage.getItem('iv_fmp_key') || '';
   const resultEl = document.getElementById('fmp-test-result');
-  resultEl.style.display = 'block';
+  const styleOk  = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.25);';
+  const styleErr = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.25);';
+  const stylePending = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--lime-dim);color:var(--lime);border:1px solid rgba(200,241,53,.25);';
 
   if (!key) {
-    resultEl.style.cssText = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.25);';
+    resultEl.style.cssText = styleErr;
     resultEl.textContent = '⚠ No FMP key entered.';
     return;
   }
 
-  resultEl.style.cssText = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--lime-dim);color:var(--lime);border:1px solid rgba(200,241,53,.25);';
+  resultEl.style.cssText = stylePending;
   resultEl.textContent = 'Testing…';
 
   try {
     const url = `https://financialmodelingprep.com/stable/cash-flow-statement?symbol=AAPL&period=annual&limit=1&apikey=${key}`;
     const r = await fetch(url);
     const raw = await r.text();
-    console.log('FMP HTTP status:', r.status);
-    console.log('FMP raw response:', raw.slice(0, 400));
+    console.log('FMP test HTTP status:', r.status);
+    console.log('FMP test response:', raw.slice(0, 300));
 
     let data;
     try { data = JSON.parse(raw); } catch(e) { data = null; }
 
-    const ok = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.25);';
-    const err = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.25);';
-
     if (!r.ok) {
-      resultEl.style.cssText = err;
-      resultEl.textContent = `⚠ HTTP ${r.status} — ${raw.slice(0, 120)}`;
+      resultEl.style.cssText = styleErr;
+      resultEl.textContent = `⚠ HTTP ${r.status} — ${raw.slice(0, 100)}`;
     } else if (data && (data['Error Message'] || data.message)) {
-      resultEl.style.cssText = err;
+      resultEl.style.cssText = styleErr;
       resultEl.textContent = `⚠ FMP says: ${data['Error Message'] || data.message}`;
     } else if (Array.isArray(data) && data.length > 0 && data[0].operatingCashFlow) {
-      resultEl.style.cssText = ok;
-      resultEl.textContent = `✓ FMP key works! AAPL operating cash flow: $${(data[0].operatingCashFlow/1e9).toFixed(1)}B`;
+      resultEl.style.cssText = styleOk;
+      resultEl.textContent = `✓ FMP key works! AAPL operating cash flow: $${(data[0].operatingCashFlow / 1e9).toFixed(1)}B`;
     } else {
-      resultEl.style.cssText = err;
-      resultEl.textContent = `⚠ Unexpected response: ${raw.slice(0, 200)}`;
+      resultEl.style.cssText = styleErr;
+      resultEl.textContent = `⚠ Unexpected response: ${raw.slice(0, 150)}`;
     }
   } catch(e) {
-    const err = 'display:block;font-size:11px;margin-top:8px;padding:8px 12px;border-radius:4px;background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.25);';
-    resultEl.style.cssText = err;
+    resultEl.style.cssText = styleErr;
     resultEl.textContent = `⚠ Network error: ${e.message}`;
-  }
-}
-  resultEl.style.display = 'block';
-  resultEl.style.background = 'var(--lime-dim)';
-  resultEl.style.color = 'var(--lime)';
-  resultEl.style.border = '1px solid rgba(200,241,53,.25)';
-  resultEl.textContent = 'Testing…';
-  try {
-    const r = await fetch(`https://financialmodelingprep.com/stable/cash-flow-statement?symbol=AAPL&period=annual&limit=1&apikey=${key}`);
-    const data = await r.json();
-    if (Array.isArray(data) && data.length > 0 && (data[0].operatingCashFlow || data[0].netCashProvidedByOperatingActivities)) {
-      resultEl.style.background = 'var(--green-dim)';
-      resultEl.style.color = 'var(--green)';
-      resultEl.style.border = '1px solid rgba(74,222,128,.25)';
-      resultEl.textContent = `✓ FMP key works! AAPL operating cash flow: $${(data[0].operatingCashFlow/1e9).toFixed(1)}B`;
-    } else if (data['Error Message'] || (Array.isArray(data) && data.length === 0)) {
-      resultEl.style.background = 'var(--red-dim)';
-      resultEl.style.color = 'var(--red)';
-      resultEl.style.border = '1px solid rgba(248,113,113,.25)';
-      resultEl.textContent = '⚠ Key rejected or no data returned. Check your FMP key.';
-    } else {
-      resultEl.style.background = 'var(--red-dim)';
-      resultEl.style.color = 'var(--red)';
-      resultEl.style.border = '1px solid rgba(248,113,113,.25)';
-      resultEl.textContent = '⚠ Unexpected response: ' + JSON.stringify(data).slice(0, 100);
-    }
-  } catch(e) {
-    resultEl.style.background = 'var(--red-dim)';
-    resultEl.style.color = 'var(--red)';
-    resultEl.style.border = '1px solid rgba(248,113,113,.25)';
-    resultEl.textContent = '⚠ Request failed: ' + e.message;
   }
 }
 </script>
