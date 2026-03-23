@@ -536,15 +536,13 @@ async function fetchMassive(ticker, key) {
     if (fmpKey) {
       try {
         console.log('Trying FMP fallback for', ticker);
-        // Try v4 stable endpoint first, fall back to v3
-        const fmpV3 = 'https://financialmodelingprep.com/api/v3';
-        const fmpV4 = 'https://financialmodelingprep.com/api/v4';
+        // Use new FMP stable endpoints (v3 is legacy and restricted)
+        const fmpStable = 'https://financialmodelingprep.com/stable';
 
-        // Fetch all three statements — try v3 which is more broadly available on free tier
         const [cfResp, balResp, incResp] = await Promise.all([
-          fetch(`${fmpV3}/cash-flow-statement/${ticker}?period=annual&limit=3&apikey=${fmpKey}`),
-          fetch(`${fmpV3}/balance-sheet-statement/${ticker}?period=annual&limit=1&apikey=${fmpKey}`),
-          fetch(`${fmpV3}/income-statement/${ticker}?period=annual&limit=1&apikey=${fmpKey}`),
+          fetch(`${fmpStable}/cash-flow-statement?symbol=${ticker}&period=annual&limit=3&apikey=${fmpKey}`),
+          fetch(`${fmpStable}/balance-sheet-statement?symbol=${ticker}&period=annual&limit=1&apikey=${fmpKey}`),
+          fetch(`${fmpStable}/income-statement?symbol=${ticker}&period=annual&limit=1&apikey=${fmpKey}`),
         ]);
 
         const fmpCF  = await cfResp.json();
